@@ -23,7 +23,7 @@ public class FarsightMod
 {
     public static final String        MODID  = "farsight";
     public static final Logger        LOGGER = LogManager.getLogger();
-    public static       Configuration config = new Configuration();
+    public static       Configuration config = null; //new Configuration();
     public static       Random        rand   = new Random();
 
     public FarsightMod()
