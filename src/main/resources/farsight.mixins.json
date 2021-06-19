@@ -1,0 +1,15 @@
+{
+  "required": false,
+  "package": "com.farsight.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "farsight.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "ClientPlayNetHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}
