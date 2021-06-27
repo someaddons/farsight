@@ -21,7 +21,7 @@ import java.util.Random;
 @Mod(FarsightMod.MODID)
 public class FarsightMod
 {
-    public static final String        MODID  = "farsight";
+    public static final String        MODID  = "farsight_view";
     public static final Logger        LOGGER = LogManager.getLogger();
     public static       Configuration config = null; //new Configuration();
     public static       Random        rand   = new Random();
