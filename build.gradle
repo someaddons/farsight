@@ -19,7 +19,7 @@ version = "${mc_version}-${mod_version}"
 group = "com.${modid}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "${modid}"
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
     mappings channel: mappings_channel, version: mappings_version
@@ -48,6 +48,7 @@ minecraft {
 
         server {
             property 'mixin.debug', 'true'
+            property 'mixin.debug.export', 'true'
             property 'forge.logging.console.level', 'debug'
             property 'forge.logging.markers', 'REGISTRIES'
 
@@ -93,7 +94,7 @@ mixin {
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}" //21
 
-    annotationProcessor "org.spongepowered:mixin:0.8.4:processor"
+    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
 }
 
 jar {

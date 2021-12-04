@@ -1,7 +1,7 @@
 {
   "required": false,
   "package": "com.farsight.mixin",
-  "compatibilityLevel": "JAVA_16",
+  "compatibilityLevel": "JAVA_17",
   "refmap": "farsight.refmap.json",
   "mixins": [
   ],

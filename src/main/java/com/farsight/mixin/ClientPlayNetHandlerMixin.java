@@ -25,7 +25,7 @@ public class ClientPlayNetHandlerMixin
         return 32;
     }
 
-    @Redirect(method = "handleLogin", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/protocol/game/ClientboundLoginPacket;getChunkRadius()I"))
+    @Redirect(method = "handleLogin", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/protocol/game/ClientboundLoginPacket;chunkRadius()I"))
     private int onJoinGame(final ClientboundLoginPacket sJoinGamePacket)
     {
         return 32;
