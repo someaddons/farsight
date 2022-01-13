@@ -2,7 +2,6 @@ package com.farsight.config;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
-import com.farsight.FarsightMod;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.loading.FMLPaths;
 
@@ -26,7 +25,7 @@ public class Configuration
     public Configuration()
     {
         commonConfig = new CommonConfiguration(new ForgeConfigSpec.Builder());
-        loadConfig(commonConfig.ForgeConfigSpecBuilder, FMLPaths.CONFIGDIR.get().resolve(FarsightMod.MODID + "-common.toml"));
+        loadConfig(commonConfig.ForgeConfigSpecBuilder, FMLPaths.CONFIGDIR.get().resolve("farsight-common.toml"));
     }
 
     public static void loadConfig(ForgeConfigSpec spec, Path path)
