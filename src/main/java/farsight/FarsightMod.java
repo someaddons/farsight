@@ -9,7 +9,7 @@ public class FarsightMod implements ModInitializer
 {
     public static Configuration config;
 
-    public static final String MODID  = "betterfpsdist";
+    public static final String MODID  = "farsight";
     public static final Logger LOGGER = LogManager.getLogger();
 
     @Override

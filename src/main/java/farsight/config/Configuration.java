@@ -39,7 +39,7 @@ public class Configuration
 
         if (!config.exists())
         {
-            FarsightMod.LOGGER.warn("Config for dynamic view not found, recreating default");
+            FarsightMod.LOGGER.warn("Config for Farsight not found, recreating default");
             save();
         }
         else
