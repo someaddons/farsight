@@ -12,7 +12,7 @@ public class CommonConfiguration
         final JsonObject root = new JsonObject();
 
         final JsonObject entry = new JsonObject();
-        entry.addProperty("desc:", "The range in which chunks are kept loaded on the clients memory, regardless of server chunk view distance."
+        entry.addProperty("desc:", "The range at which chunks are kept loaded on the clients memory, regardless of server chunk view distance."
                                      + " default:32, min 1, max 128");
         entry.addProperty("maxchunkdist", maxchunkdist);
         root.add("maxchunkdist", entry);
