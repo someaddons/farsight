@@ -11,8 +11,8 @@ public class CommonConfiguration
     {
         builder.push("Config category");
 
-        builder.comment("Max distance at which chunks kept in memory on the client. default = 32");
-        maxchunkdist = builder.defineInRange("maxchunkdist", 32, 8, 256);
+        builder.comment("Max distance at which chunk data is kept on the client. default = 32");
+        maxchunkdist = builder.defineInRange("maxchunkdist", 32, 8, 512);
 
         // Escapes the current category level
         builder.pop();
