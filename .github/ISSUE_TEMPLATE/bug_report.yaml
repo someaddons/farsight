@@ -39,8 +39,9 @@ body:
       label: Minecraft version
       description: What version of our Minecraft are you running?
       options:
-        - 1.16.5
-        - 1.18.1
+        - 1.16
+        - 1.18
+        - 1.19
     validations:
       required: true
   - type: dropdown
