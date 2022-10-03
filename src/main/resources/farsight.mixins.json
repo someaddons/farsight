@@ -2,7 +2,7 @@
   "required": false,
   "minVersion": "0.8",
   "package": "farsight.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_16",
   "mixins": [
   ],
   "client": [
