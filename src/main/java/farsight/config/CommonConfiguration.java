@@ -5,17 +5,16 @@ import farsight.FarsightMod;
 
 public class CommonConfiguration
 {
-    public int maxchunkdist = 32;
+    public int maxRenderDistance = 64;
 
     public JsonObject serialize()
     {
         final JsonObject root = new JsonObject();
 
-        final JsonObject entry = new JsonObject();
-        entry.addProperty("desc:", "The range at which chunks are kept loaded on the clients memory, regardless of server chunk view distance."
-                                     + " default:32, min 1, max 128");
-        entry.addProperty("maxchunkdist", maxchunkdist);
-        root.add("maxchunkdist", entry);
+        final JsonObject entry2 = new JsonObject();
+        entry2.addProperty("desc:", "Maximum allowed render distance, default 64");
+        entry2.addProperty("maxRenderDistance", maxRenderDistance);
+        root.add("maxRenderDistance", entry2);
 
         return root;
     }
@@ -28,13 +27,6 @@ public class CommonConfiguration
             return;
         }
 
-        try
-        {
-            maxchunkdist = data.get("maxchunkdist").getAsJsonObject().get("maxchunkdist").getAsInt();
-        }
-        catch (Exception e)
-        {
-            FarsightMod.LOGGER.error("Could not parse config file", e);
-        }
+        maxRenderDistance = data.get("maxRenderDistance").getAsJsonObject().get("maxRenderDistance").getAsInt();
     }
 }
