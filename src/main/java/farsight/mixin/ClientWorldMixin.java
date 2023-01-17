@@ -5,8 +5,8 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -30,17 +30,16 @@ public class ClientWorldMixin
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onInit(
-      final ClientPlayNetworkHandler netHandler,
+      final ClientPlayNetworkHandler networkHandler,
       final ClientWorld.Properties properties,
       final RegistryKey registryRef,
-      final RegistryEntry registryEntry,
+      final RegistryEntry dimensionTypeEntry,
       final int loadDistance,
       final int simulationDistance,
       final Supplier profiler,
       final WorldRenderer worldRenderer,
       final boolean debugWorld,
-      final long seed,
-      final CallbackInfo ci)
+      final long seed, final CallbackInfo ci)
     {
         chunkManager = new FarsightClientChunkManager((ClientWorld) ((Object) this));
     }

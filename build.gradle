@@ -26,7 +26,7 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    compileOnly("curse.maven:sodium-394468:3820973")
+    compileOnly("curse.maven:sodium-394468:4291859")
 
     implementation include("com.github.JCTools.JCTools:jctools-core:v4.0.1")
 
