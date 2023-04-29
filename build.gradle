@@ -18,6 +18,8 @@ repositories {
         }
     }
     maven { url = "https://jitpack.io" }
+
+    flatDir { dirs 'libs' }
 }
 
 
@@ -26,8 +28,8 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    compileOnly("curse.maven:sodium-394468:4291859")
 
+    compileOnly("me.jellysquid.mods:sodium-fabric:mc1.19.4-0.4.10+build.24 (1)")
     implementation include("com.github.JCTools.JCTools:jctools-core:v4.0.1")
 
     // Fabric API. This is technically optional, but you probably want it anyway.
