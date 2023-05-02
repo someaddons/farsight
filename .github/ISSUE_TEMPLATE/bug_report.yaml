@@ -1,9 +1,6 @@
 name: Bug Report
 description: File a bug report
 title: "[Bug]: "
-labels: ["bug", "triage"]
-assignees:
-  - someaddons
 body:
   - type: markdown
     attributes:
@@ -33,15 +30,11 @@ body:
       options:
         - label: Before submitting this issue I updated to the newest version and reproduced it
           required: true
-  - type: dropdown
+  - type: input
     id: mversion
     attributes:
       label: Minecraft version
-      description: What version of our Minecraft are you running?
-      options:
-        - 1.16
-        - 1.18
-        - 1.19
+      description: What version of Minecraft are you using?
     validations:
       required: true
   - type: dropdown
@@ -58,7 +51,7 @@ body:
     id: logs
     attributes:
       label: Logs
-      description: Please upload your log file from logs/latest.log to https://gist.github.com/ and put in the link below. It may contain important information.
+      description: Please upload your log file from logs/latest.log to https://gist.github.com/ and put in the link below. It always contains needed, important information.
       placeholder: ex. https://gist.github.com/someaddons/aa5986b9495863c3b5
     validations:
       required: true
