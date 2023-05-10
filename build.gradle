@@ -17,7 +17,6 @@ repositories {
             includeGroup "curse.maven"
         }
     }
-    maven { url = "https://jitpack.io" }
 
     flatDir { dirs 'libs' }
 }
@@ -30,7 +29,7 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     compileOnly("me.jellysquid.mods:sodium-fabric:mc1.19.4-0.4.10+build.24 (1)")
-    implementation include("com.github.JCTools.JCTools:jctools-core:v4.0.1")
+    implementation include('org.jctools:jctools-core:4.0.1')
 
     // Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
