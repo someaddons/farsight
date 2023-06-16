@@ -23,7 +23,7 @@ public abstract class ClientOptionsMixin
           "options.renderDistance",
           SimpleOption.emptyTooltip(),
           (optionText, value) -> getGenericValueText(optionText, Text.translatable("options.chunks", new Object[] {value})),
-          new SimpleOption.ValidatingIntSliderCallbacks(2, FarsightMod.config.getCommonConfig().maxRenderDistance),
+          new SimpleOption.ValidatingIntSliderCallbacks(2, FarsightMod.getConfig().getCommonConfig().maxRenderDistance),
           12,
           value -> {
               MinecraftClient.getInstance().worldRenderer.scheduleTerrainUpdate();
@@ -34,7 +34,7 @@ public abstract class ClientOptionsMixin
           "options.simulationDistance",
           SimpleOption.emptyTooltip(),
           (optionText, value) -> getGenericValueText(optionText, Text.translatable("options.chunks", new Object[] {value})),
-          new SimpleOption.ValidatingIntSliderCallbacks(5, FarsightMod.config.getCommonConfig().maxRenderDistance),
+          new SimpleOption.ValidatingIntSliderCallbacks(5, FarsightMod.getConfig().getCommonConfig().maxRenderDistance),
           12,
           value -> {
           }
