@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 public class FarsightMod implements ModInitializer
 {
-    public static Configuration config;
+    private static Configuration config;
 
     public static final String MODID  = "farsight";
     public static final Logger LOGGER = LogManager.getLogger();
@@ -17,13 +17,22 @@ public class FarsightMod implements ModInitializer
     @Override
     public void onInitialize()
     {
-        config = new Configuration();
-        config.load();
         LOGGER.info(MODID + " mod initialized");
 
         if (FabricLoader.getInstance().isModLoaded("sodium"))
         {
             SodiumCompat.init();
         }
+    }
+
+    public static Configuration getConfig()
+    {
+        if (config == null)
+        {
+            config = new Configuration();
+            config.load();
+        }
+
+        return config;
     }
 }

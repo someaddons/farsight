@@ -31,7 +31,7 @@ public class ClientPlayNetHandlerMixin
     private int onViewDistChange(final ChunkLoadDistanceS2CPacket instance)
     {
         //client.options.getViewDistance().setValue(FarsightMod.config.getCommonConfig().maxchunkdist);
-        return FarsightMod.config.getCommonConfig().maxRenderDistance;
+        return FarsightMod.getConfig().getCommonConfig().maxRenderDistance;
     }
 
     @Redirect(method = "onGameJoin", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/GameJoinS2CPacket;viewDistance()I"))
