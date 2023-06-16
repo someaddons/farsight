@@ -37,7 +37,7 @@ public class ClientPlayNetHandlerMixin
     @Redirect(method = "onGameJoin", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/GameJoinS2CPacket;viewDistance()I"))
     private int onJoinGame(final GameJoinS2CPacket instance)
     {
-        return FarsightMod.config.getCommonConfig().maxRenderDistance;
+        return FarsightMod.getConfig().getCommonConfig().maxRenderDistance;
     }
 
     @Inject(method = "onUnloadChunk", at = @At("HEAD"), cancellable = true)
