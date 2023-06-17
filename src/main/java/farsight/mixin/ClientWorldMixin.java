@@ -1,12 +1,12 @@
 package farsight.mixin;
 
 import farsight.FarsightClientChunkManager;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.world.ClientChunkManager;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.client.multiplayer.ClientChunkCache;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Supplier;
 
-@Mixin(ClientWorld.class)
+@Mixin(ClientLevel.class)
 /**
  * Exchanges the client's chunk map with a custom implementation, which can handle chunks at any distance apart fine
  */
@@ -26,21 +26,22 @@ public class ClientWorldMixin
     @Shadow
     @Final
     @Mutable
-    private ClientChunkManager chunkManager;
+    private ClientChunkCache chunkSource;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onInit(
-      final ClientPlayNetworkHandler networkHandler,
-      final ClientWorld.Properties properties,
-      final RegistryKey registryRef,
-      final RegistryEntry dimensionTypeEntry,
-      final int loadDistance,
-      final int simulationDistance,
-      final Supplier profiler,
-      final WorldRenderer worldRenderer,
-      final boolean debugWorld,
-      final long seed, final CallbackInfo ci)
+      final ClientPacketListener clientPacketListener,
+      final ClientLevel.ClientLevelData clientLevelData,
+      final ResourceKey resourceKey,
+      final Holder holder,
+      final int i,
+      final int j,
+      final Supplier supplier,
+      final LevelRenderer levelRenderer,
+      final boolean bl,
+      final long l,
+      final CallbackInfo ci)
     {
-        chunkManager = new FarsightClientChunkManager((ClientWorld) ((Object) this));
+        chunkSource = new FarsightClientChunkManager((ClientLevel) ((Object) this));
     }
 }

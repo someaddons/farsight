@@ -2,21 +2,22 @@ package farsight;
 
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.ChunkData;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.EmptyChunk;
-import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.chunk.light.LightingProvider;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientChunkCache;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.EmptyLevelChunk;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.lighting.LevelLightEngine;
 import org.jctools.maps.NonBlockingHashMapLong;
 
 import java.util.ArrayList;
@@ -26,31 +27,30 @@ import java.util.function.Consumer;
 /**
  * Simple client chunk manager, based on a concurrent hashmap. Unboxing here may be a performance bottleneck.
  */
-public class FarsightClientChunkManager extends net.minecraft.client.world.ClientChunkManager
+public class FarsightClientChunkManager extends ClientChunkCache
 {
     private static int                        EXTRA_CHUNK_DATA_LEEWAY = 10;
-    public static  List<Consumer<WorldChunk>> unloadCallback          = new ArrayList<>();
+    public static  List<Consumer<LevelChunk>> unloadCallback          = new ArrayList<>();
 
-    private final NonBlockingHashMapLong<WorldChunk> chunks           = new NonBlockingHashMapLong();
+    private final NonBlockingHashMapLong<LevelChunk> chunks           = new NonBlockingHashMapLong();
     private final LongOpenHashSet                    unloadedOnServer = new LongOpenHashSet();
 
-    private final EmptyChunk       emptyChunk;
-    private final LightingProvider lightingProvider;
-    private final ClientWorld      world;
+    private final EmptyLevelChunk  emptyChunk;
+    private final LevelLightEngine lightEngine;
+    private final ClientLevel      world;
 
-    public FarsightClientChunkManager(final ClientWorld world)
+    public FarsightClientChunkManager(final ClientLevel world)
     {
         super(world, 64);
         this.world = world;
-        this.emptyChunk = new EmptyChunk(world, new ChunkPos(0, 0), world.getRegistryManager().get(RegistryKeys.BIOME).entryOf(BiomeKeys.PLAINS));
-        this.lightingProvider = new LightingProvider(this, true, world.getDimension().hasSkyLight());
+        this.emptyChunk = new EmptyLevelChunk(world, new ChunkPos(0, 0), world.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS));
+        this.lightEngine = new LevelLightEngine(this, true, world.dimensionType().hasSkyLight());
     }
 
     @Override
-    public WorldChunk getChunk(int x, int z, ChunkStatus leastStatus, boolean create)
+    public LevelChunk getChunk(int x, int z, ChunkStatus leastStatus, boolean create)
     {
-        final WorldChunk superChunk = super.getChunk(x, z, leastStatus, create);
-        final WorldChunk chunk = chunks.get(ChunkPos.toLong(x, z));
+        final LevelChunk chunk = chunks.get(ChunkPos.asLong(x, z));
         if (chunk != null)
         {
             return chunk;
@@ -65,77 +65,76 @@ public class FarsightClientChunkManager extends net.minecraft.client.world.Clien
     }
 
     @Override
-    public String getDebugString()
+    public String gatherStats()
     {
-        return chunks.size() + ", " + this.getLoadedChunkCount();
+        return chunks.size() + ", " + this.getLoadedChunksCount();
     }
 
     @Override
-    public int getLoadedChunkCount()
+    public int getLoadedChunksCount()
     {
         return chunks.size();
     }
 
     @Override
-    public LightingProvider getLightingProvider()
+    public LevelLightEngine getLightEngine()
     {
-        return lightingProvider;
+        return lightEngine;
+    }
+
+    public BlockGetter getLevel()
+    {
+        return this.world;
     }
 
     @Override
-    public BlockView getWorld()
-    {
-        return world;
-    }
-
-    @Override
-    public void updateLoadDistance(int loadDistance)
+    public void updateViewRadius(int loadDistance)
     {
     }
 
     @Override
-    public WorldChunk loadChunkFromPacket(int x, int z, PacketByteBuf buf, NbtCompound nbt, Consumer<ChunkData.BlockEntityVisitor> consumer)
+    public LevelChunk replaceWithPacketData(int x, int z, FriendlyByteBuf buf, CompoundTag nbt, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer)
     {
-        WorldChunk worldChunk = chunks.get(ChunkPos.toLong(x, z));
-        if (worldChunk == null)
+        LevelChunk LevelChunk = chunks.get(ChunkPos.asLong(x, z));
+        if (LevelChunk == null)
         {
-            worldChunk = new WorldChunk(this.world, new ChunkPos(x, z));
-            worldChunk.loadFromPacket(buf, nbt, consumer);
-            this.chunks.put(ChunkPos.toLong(x, z), worldChunk);
+            LevelChunk = new LevelChunk(this.world, new ChunkPos(x, z));
+            LevelChunk.replaceWithPacketData(buf, nbt, consumer);
+            this.chunks.put(ChunkPos.asLong(x, z), LevelChunk);
         }
         else
         {
-            world.unloadBlockEntities(worldChunk);
-            worldChunk.loadFromPacket(buf, nbt, consumer);
+            world.unload(LevelChunk);
+            LevelChunk.replaceWithPacketData(buf, nbt, consumer);
         }
-        unloadedOnServer.remove(ChunkPos.toLong(x, z));
-        this.world.resetChunkColor(new ChunkPos(x, z));
+        unloadedOnServer.remove(ChunkPos.asLong(x, z));
+        this.world.onChunkLoaded(new ChunkPos(x, z));
 
-        return worldChunk;
+        return LevelChunk;
     }
 
     @Override
-    public void unload(int chunkX, int chunkZ)
+    public void drop(int chunkX, int chunkZ)
     {
-        final PlayerEntity player = MinecraftClient.getInstance().player;
-        if (player != null && player.getChunkPos().getChebyshevDistance(new ChunkPos(chunkX, chunkZ))
-                                > MinecraftClient.getInstance().options.getViewDistance().getValue() + EXTRA_CHUNK_DATA_LEEWAY)
+        final Player player = Minecraft.getInstance().player;
+        if (player != null && player.chunkPosition().getChessboardDistance(new ChunkPos(chunkX, chunkZ))
+                                > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
         {
-            final WorldChunk chunk = chunks.remove(ChunkPos.toLong(chunkX, chunkZ));
+            final LevelChunk chunk = chunks.remove(ChunkPos.asLong(chunkX, chunkZ));
             unloadChunk(chunk);
         }
         else
         {
-            unloadedOnServer.add(ChunkPos.toLong(chunkX, chunkZ));
+            unloadedOnServer.add(ChunkPos.asLong(chunkX, chunkZ));
             if (player != null)
             {
                 for (LongIterator iterator = unloadedOnServer.iterator(); iterator.hasNext(); )
                 {
                     final long chunkLong = iterator.nextLong();
-                    if (getChebyshevDistance(player.getChunkPos().x, player.getChunkPos().z, ChunkPos.getPackedX(chunkLong), ChunkPos.getPackedZ(chunkLong))
-                          > MinecraftClient.getInstance().options.getViewDistance().getValue() + EXTRA_CHUNK_DATA_LEEWAY)
+                    if (getChebyshevDistance(player.chunkPosition().x, player.chunkPosition().z, ChunkPos.getX(chunkLong), ChunkPos.getZ(chunkLong))
+                          > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
                     {
-                        final WorldChunk chunk = chunks.remove(chunkLong);
+                        final LevelChunk chunk = chunks.remove(chunkLong);
                         unloadChunk(chunk);
                         iterator.remove();
                     }
@@ -149,29 +148,29 @@ public class FarsightClientChunkManager extends net.minecraft.client.world.Clien
         return Math.max(Math.abs(chunkXa - chunkXb), Math.abs(chunkZa - chunkZb));
     }
 
-    private void unloadChunk(final WorldChunk chunk)
+    private void unloadChunk(final LevelChunk chunk)
     {
         if (chunk == null)
         {
             return;
         }
 
-        world.unloadBlockEntities(chunk);
+        world.unload(chunk);
 
-        this.world.enqueueChunkUpdate(() ->
+        this.world.queueLightUpdate(() ->
         {
-            LightingProvider lightingProvider = this.world.getLightingProvider();
+            LevelLightEngine lightingProvider = this.world.getLightEngine();
 
-            for (int i = this.world.getBottomSectionCoord(); i < this.world.getTopSectionCoord(); ++i)
+            for (int i = this.world.getMinSection(); i < this.world.getMaxSection(); ++i)
             {
-                lightingProvider.setSectionStatus(ChunkSectionPos.from(chunk.getPos().x, i, chunk.getPos().z), true);
+                lightingProvider.updateSectionStatus(SectionPos.of(chunk.getPos().x, i, chunk.getPos().z), true);
             }
 
-            lightingProvider.setColumnEnabled(new ChunkPos(chunk.getPos().x, chunk.getPos().z), false);
-            this.world.markChunkRenderability(chunk.getPos().x, chunk.getPos().z);
+            lightingProvider.enableLightSources(new ChunkPos(chunk.getPos().x, chunk.getPos().z), false);
+            this.world.setLightReady(chunk.getPos().x, chunk.getPos().z);
         });
 
-        for (final Consumer<WorldChunk> consumer : unloadCallback)
+        for (final Consumer<LevelChunk> consumer : unloadCallback)
         {
             consumer.accept(chunk);
         }
