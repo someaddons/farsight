@@ -5,8 +5,8 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
@@ -43,7 +43,7 @@ public class FarsightClientChunkManager extends ClientChunkCache
     {
         super(world, 64);
         this.world = world;
-        this.emptyChunk = new EmptyLevelChunk(world, new ChunkPos(0, 0), world.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS));
+        this.emptyChunk = new EmptyLevelChunk(world, new ChunkPos(0, 0), world.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getHolderOrThrow(Biomes.PLAINS));
         this.lightEngine = new LevelLightEngine(this, true, world.dimensionType().hasSkyLight());
     }
 
