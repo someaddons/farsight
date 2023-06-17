@@ -1,80 +1,88 @@
 plugins {
-	id 'fabric-loom' version '0.12-SNAPSHOT'
-	id 'maven-publish'
+    id 'fabric-loom' version "${loom_version}"
+    id 'maven-publish'
+    id 'io.github.juuxel.loom-quiltflower' version "${quiltflower_version}"
+    id 'com.github.johnrengelman.shadow' version '7.1.2' apply false
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+quiltflower {
+    addToRuntimeClasspath.set(true)
+}
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
+var ENV = System.getenv()
+
+if (ENV.MCMC_BUILD_NUMBER) {
+    version = "${mod_version}.${ENV.MCMC_BUILD_NUMBER}"
+} else {
+    version = project.minecraft_version + "-" + project.mod_version
+}
+
 group = project.maven_group
 
+loom {
+    accessWidenerPath = file("src/main/resources/${project.archives_base_name}.accessWidener")
+}
+
 repositories {
+    mavenLocal()
+    flatDir { dirs 'libs' }
+    mavenCentral()
+
     maven {
-        url "https://cursemaven.com"
+        url "https://www.cursemaven.com"
         content {
             includeGroup "curse.maven"
         }
     }
-    maven { url = "https://jitpack.io" }
-
-    flatDir { dirs 'libs' }
 }
 
-
 dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation include('org.jctools:jctools-core:4.0.1')
     compileOnly("me.jellysquid.mods:sodium-fabric-mc1.19.3-0.4.9+build.23")
+}
 
-    implementation include("com.github.JCTools.JCTools:jctools-core:v4.0.1")
-
-    // Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+loom {
+    runs {
+        client {
+            programArg '--username=Dev'
+            programArg '--uuid=123123123123123'
+            vmArg '-Dmixin.debug=true'
+        }
+        server {
+            runDir = "runserver"
+        }
+    }
 }
 
 processResources {
-	inputs.property "version", project.version
+    inputs.property "version", project.version
+    filteringCharset "UTF-8"
 
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
-	}
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
 }
 
+def targetJavaVersion = 17
 tasks.withType(JavaCompile).configureEach {
-	// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-	it.options.release = 17
+    it.options.encoding = "UTF-8"
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        it.options.release = targetJavaVersion
+    }
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
-	withSourcesJar()
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+    archivesBaseName =  project.archives_base_name + "-fabric"
+    withSourcesJar()
 }
 
-jar {
-	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
-	}
-}
-
-// configure the maven publication
 publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
-		}
-	}
-
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
-	}
 }

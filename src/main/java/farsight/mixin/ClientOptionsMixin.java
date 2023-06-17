@@ -1,10 +1,10 @@
 package farsight.mixin;
 
 import farsight.FarsightMod;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.GameOptions;
-import net.minecraft.client.option.SimpleOption;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.OptionInstance;
+import net.minecraft.client.Options;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -13,28 +13,28 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(GameOptions.class)
+@Mixin(Options.class)
 public abstract class ClientOptionsMixin
 {
     @Inject(method = "load", at = @At("HEAD"))
     private void onInit(final CallbackInfo ci)
     {
-        this.viewDistance = new SimpleOption(
+        this.renderDistance = new OptionInstance(
           "options.renderDistance",
-          SimpleOption.emptyTooltip(),
-          (optionText, value) -> getGenericValueText(optionText, Text.translatable("options.chunks", new Object[] {value})),
-          new SimpleOption.ValidatingIntSliderCallbacks(2, FarsightMod.getConfig().getCommonConfig().maxRenderDistance),
+          OptionInstance.noTooltip(),
+          (optionText, value) -> genericValueLabel(optionText, Component.translatable("options.chunks", new Object[] {value})),
+          new OptionInstance.IntRange(2, FarsightMod.getConfig().getCommonConfig().maxRenderDistance),
           12,
           value -> {
-              MinecraftClient.getInstance().worldRenderer.scheduleTerrainUpdate();
+              Minecraft.getInstance().levelRenderer.needsUpdate();
           }
         );
 
-        this.simulationDistance = new SimpleOption(
+        this.simulationDistance = new OptionInstance(
           "options.simulationDistance",
-          SimpleOption.emptyTooltip(),
-          (optionText, value) -> getGenericValueText(optionText, Text.translatable("options.chunks", new Object[] {value})),
-          new SimpleOption.ValidatingIntSliderCallbacks(5, FarsightMod.getConfig().getCommonConfig().maxRenderDistance),
+          OptionInstance.noTooltip(),
+          (optionText, value) -> genericValueLabel(optionText, Component.translatable("options.chunks", new Object[] {value})),
+          new OptionInstance.IntRange(5, FarsightMod.getConfig().getCommonConfig().maxRenderDistance),
           12,
           value -> {
           }
@@ -44,10 +44,10 @@ public abstract class ClientOptionsMixin
     @Mutable
     @Shadow
     @Final
-    private SimpleOption<Integer> viewDistance;
+    private OptionInstance<Integer> renderDistance;
 
     @Shadow
-    public static Text getGenericValueText(final Text prefix, final Text value)
+    public static Component genericValueLabel(final Component prefix, final Component value)
     {
         return null;
     }
@@ -55,5 +55,5 @@ public abstract class ClientOptionsMixin
     @Mutable
     @Shadow
     @Final
-    private SimpleOption<Integer> simulationDistance;
+    private OptionInstance<Integer> simulationDistance;
 }
