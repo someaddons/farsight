@@ -6,18 +6,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.SectionPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.DataLayer;
-import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import org.jctools.maps.NonBlockingHashMapLong;
@@ -37,16 +33,12 @@ public class FarsightClientChunkManager extends ClientChunkCache
     private final NonBlockingHashMapLong<LevelChunk> chunks           = new NonBlockingHashMapLong();
     private final LongOpenHashSet                    unloadedOnServer = new LongOpenHashSet();
 
-    private final EmptyLevelChunk  emptyChunk;
-    private final LevelLightEngine lightEngine;
-    private final ClientLevel      world;
+    private final ClientLevel world;
 
     public FarsightClientChunkManager(final ClientLevel world)
     {
-        super(world, 64);
+        super(world, 5);
         this.world = world;
-        this.emptyChunk = new EmptyLevelChunk(world, new ChunkPos(0, 0), world.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS));
-        this.lightEngine = new LevelLightEngine(this, true, world.dimensionType().hasSkyLight());
     }
 
     @Override
@@ -76,17 +68,6 @@ public class FarsightClientChunkManager extends ClientChunkCache
     public int getLoadedChunksCount()
     {
         return chunks.size();
-    }
-
-    @Override
-    public LevelLightEngine getLightEngine()
-    {
-        return lightEngine;
-    }
-
-    public BlockGetter getLevel()
-    {
-        return this.world;
     }
 
     @Override
