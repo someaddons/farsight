@@ -13,8 +13,10 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.lighting.LevelLightEngine;
@@ -157,17 +159,22 @@ public class FarsightClientChunkManager extends ClientChunkCache
 
         world.unload(chunk);
 
-        this.world.queueLightUpdate(() ->
-        {
-            LevelLightEngine lightingProvider = this.world.getLightEngine();
+        this.world.queueLightUpdate(() -> {
+            LevelLightEngine levelLightEngine = this.world.getLightEngine();
+            levelLightEngine.setLightEnabled(chunk.getPos(), false);
 
-            for (int i = this.world.getMinSection(); i < this.world.getMaxSection(); ++i)
+            int i;
+            for (i = levelLightEngine.getMinLightSection(); i < levelLightEngine.getMaxLightSection(); ++i)
             {
-                lightingProvider.updateSectionStatus(SectionPos.of(chunk.getPos().x, i, chunk.getPos().z), true);
+                SectionPos sectionPos = SectionPos.of(chunk.getPos(), i);
+                levelLightEngine.queueSectionData(LightLayer.BLOCK, sectionPos, (DataLayer) null);
+                levelLightEngine.queueSectionData(LightLayer.SKY, sectionPos, (DataLayer) null);
             }
 
-            lightingProvider.enableLightSources(new ChunkPos(chunk.getPos().x, chunk.getPos().z), false);
-            this.world.setLightReady(chunk.getPos().x, chunk.getPos().z);
+            for (i = this.world.getMinSection(); i < this.world.getMaxSection(); ++i)
+            {
+                levelLightEngine.updateSectionStatus(SectionPos.of(chunk.getPos(), i), true);
+            }
         });
 
         for (final Consumer<LevelChunk> consumer : unloadCallback)
