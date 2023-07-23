@@ -1,25 +1,22 @@
 package farsight;
 
-import it.unimi.dsi.fastutil.longs.LongIterator;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.SectionPos;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.lighting.LevelLightEngine;
 import org.jctools.maps.NonBlockingHashMapLong;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -27,13 +24,11 @@ import java.util.function.Consumer;
  */
 public class FarsightClientChunkManager extends ClientChunkCache
 {
-    private static int                        EXTRA_CHUNK_DATA_LEEWAY = 10;
-    public static  List<Consumer<LevelChunk>> unloadCallback          = new ArrayList<>();
-
-    private final NonBlockingHashMapLong<LevelChunk> chunks           = new NonBlockingHashMapLong();
-    private final LongOpenHashSet                    unloadedOnServer = new LongOpenHashSet();
-
-    private final ClientLevel world;
+    private static int                                                       EXTRA_CHUNK_DATA_LEEWAY = 10;
+    private final  NonBlockingHashMapLong<LevelChunk>                        chunks                  = new NonBlockingHashMapLong();
+    private final  Long2ObjectOpenHashMap<ClientboundForgetLevelChunkPacket> unloadedOnServer        = new Long2ObjectOpenHashMap();
+    private final  ClientLevel                                               world;
+    public         ClientPacketListener                                      packetListener          = null;
 
     public FarsightClientChunkManager(final ClientLevel world)
     {
@@ -99,31 +94,13 @@ public class FarsightClientChunkManager extends ClientChunkCache
     @Override
     public void drop(int chunkX, int chunkZ)
     {
-        final Player player = Minecraft.getInstance().player;
-        if (player != null && player.chunkPosition().getChessboardDistance(new ChunkPos(chunkX, chunkZ))
-                                > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
+        final LevelChunk chunk = chunks.remove(ChunkPos.asLong(chunkX, chunkZ));
+        if (chunk == null)
         {
-            final LevelChunk chunk = chunks.remove(ChunkPos.asLong(chunkX, chunkZ));
-            unloadChunk(chunk);
+            return;
         }
-        else
-        {
-            unloadedOnServer.add(ChunkPos.asLong(chunkX, chunkZ));
-            if (player != null)
-            {
-                for (LongIterator iterator = unloadedOnServer.iterator(); iterator.hasNext(); )
-                {
-                    final long chunkLong = iterator.nextLong();
-                    if (getChebyshevDistance(player.chunkPosition().x, player.chunkPosition().z, ChunkPos.getX(chunkLong), ChunkPos.getZ(chunkLong))
-                          > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
-                    {
-                        final LevelChunk chunk = chunks.remove(chunkLong);
-                        unloadChunk(chunk);
-                        iterator.remove();
-                    }
-                }
-            }
-        }
+
+        world.unload(chunk);
     }
 
     public int getChebyshevDistance(int chunkXa, int chunkZa, int chunkXb, int chunkZb)
@@ -131,36 +108,58 @@ public class FarsightClientChunkManager extends ClientChunkCache
         return Math.max(Math.abs(chunkXa - chunkXb), Math.abs(chunkZa - chunkZb));
     }
 
-    private void unloadChunk(final LevelChunk chunk)
+    /**
+     * Toggle to allow the vanilla call go through when actually unloading
+     */
+    boolean unloading = false;
+
+    /**
+     * Checks if the chunk should be unloaded directly, returns true is unloading is handled later by this
+     *
+     * @param packet
+     * @return true if unloading is prevented/scheduled for later
+     */
+    public boolean checkUnload(final ClientboundForgetLevelChunkPacket packet)
     {
-        if (chunk == null)
+        if (unloading)
         {
-            return;
+            return false;
         }
 
-        world.unload(chunk);
-
-        this.world.queueLightUpdate(() -> {
-            LevelLightEngine levelLightEngine = this.world.getLightEngine();
-            levelLightEngine.setLightEnabled(chunk.getPos(), false);
-
-            int i;
-            for (i = levelLightEngine.getMinLightSection(); i < levelLightEngine.getMaxLightSection(); ++i)
-            {
-                SectionPos sectionPos = SectionPos.of(chunk.getPos(), i);
-                levelLightEngine.queueSectionData(LightLayer.BLOCK, sectionPos, (DataLayer) null);
-                levelLightEngine.queueSectionData(LightLayer.SKY, sectionPos, (DataLayer) null);
-            }
-
-            for (i = this.world.getMinSection(); i < this.world.getMaxSection(); ++i)
-            {
-                levelLightEngine.updateSectionStatus(SectionPos.of(chunk.getPos(), i), true);
-            }
-        });
-
-        for (final Consumer<LevelChunk> consumer : unloadCallback)
+        final Player player = Minecraft.getInstance().player;
+        if (player != null && player.chunkPosition().getChessboardDistance(new ChunkPos(packet.getX(), packet.getZ()))
+                                > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
         {
-            consumer.accept(chunk);
+            return false;
+        }
+        else
+        {
+            unloadedOnServer.put(ChunkPos.asLong(packet.getX(), packet.getZ()), packet);
+            if (player != null)
+            {
+                for (ObjectIterator<Long2ObjectMap.Entry<ClientboundForgetLevelChunkPacket>> iterator = unloadedOnServer.long2ObjectEntrySet().fastIterator(); iterator.hasNext(); )
+                {
+                    final Long2ObjectMap.Entry<ClientboundForgetLevelChunkPacket> entry = iterator.next();
+                    final long chunkLong = entry.getLongKey();
+                    if (getChebyshevDistance(player.chunkPosition().x, player.chunkPosition().z, ChunkPos.getX(chunkLong), ChunkPos.getZ(chunkLong))
+                          > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
+                    {
+                        unloading = true;
+                        if (packetListener != null)
+                        {
+                            packetListener.handleForgetLevelChunk(entry.getValue());
+                        }
+                        unloading = false;
+                        iterator.remove();
+                    }
+                }
+            }
+            else
+            {
+                unloadedOnServer.clear();
+            }
+
+            return true;
         }
     }
 }

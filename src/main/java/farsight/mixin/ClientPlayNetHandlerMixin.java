@@ -1,5 +1,6 @@
 package farsight.mixin;
 
+import farsight.FarsightClientChunkManager;
 import farsight.FarsightMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
@@ -18,14 +19,14 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPacketListener.class)
-public class ClientPlayNetHandlerMixin
+public abstract class ClientPlayNetHandlerMixin
 {
+    @Shadow
+    private ClientLevel level;
+
     @Shadow
     @Final
     private Minecraft minecraft;
-
-    @Shadow
-    private ClientLevel level;
 
     @Redirect(method = "handleSetChunkCacheRadius", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/protocol/game/ClientboundSetChunkCacheRadiusPacket;getRadius()I"))
     private int onViewDistChange(final ClientboundSetChunkCacheRadiusPacket sUpdateViewDistancePacket)
@@ -45,11 +46,11 @@ public class ClientPlayNetHandlerMixin
       final CallbackInfo ci)
     {
         PacketUtils.ensureRunningOnSameThread(clientboundForgetLevelChunkPacket, (ClientPacketListener) (Object) this, this.minecraft);
-        int i = clientboundForgetLevelChunkPacket.getX();
-        int j = clientboundForgetLevelChunkPacket.getZ();
         ClientChunkCache clientChunkManager = level.getChunkSource();
-        clientChunkManager.drop(i, j);
-
-        ci.cancel();
+        if (clientChunkManager instanceof FarsightClientChunkManager && ((FarsightClientChunkManager) clientChunkManager).checkUnload(clientboundForgetLevelChunkPacket))
+        {
+            ((FarsightClientChunkManager) clientChunkManager).packetListener = (ClientPacketListener) (Object) this;
+            ci.cancel();
+        }
     }
 }

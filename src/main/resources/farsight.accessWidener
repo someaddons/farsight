@@ -1,3 +1,4 @@
 accessWidener   v2  named
 accessible field net/minecraft/client/multiplayer/ClientChunkCache emptyChunk Lnet/minecraft/world/level/chunk/LevelChunk;
 accessible field net/minecraft/client/multiplayer/ClientChunkCache lightEngine Lnet/minecraft/world/level/lighting/LevelLightEngine;
+accessible field net/minecraft/client/Minecraft pendingConnection Lnet/minecraft/network/Connection;
