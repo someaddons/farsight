@@ -25,7 +25,7 @@
   "mixins": [
     "farsight.mixins.json"
   ],
-
+  "accessWidener": "farsight.accessWidener",
   "depends": {
     "fabricloader": ">=0.11.3",
     "fabric": "*",
