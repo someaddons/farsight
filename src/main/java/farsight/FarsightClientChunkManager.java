@@ -17,6 +17,9 @@ import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.jctools.maps.NonBlockingHashMapLong;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -29,6 +32,8 @@ public class FarsightClientChunkManager extends ClientChunkCache
     private final  Long2ObjectOpenHashMap<ClientboundForgetLevelChunkPacket> unloadedOnServer        = new Long2ObjectOpenHashMap();
     private final  ClientLevel                                               world;
     public         ClientPacketListener                                      packetListener          = null;
+    public static  List<BiConsumer<ClientLevel, LevelChunk>>                 unloadCallback          = new ArrayList<>();
+    public static  List<BiConsumer<ClientLevel, LevelChunk>>                 loadCallback            = new ArrayList<>();
 
     public FarsightClientChunkManager(final ClientLevel world)
     {
@@ -73,22 +78,28 @@ public class FarsightClientChunkManager extends ClientChunkCache
     @Override
     public LevelChunk replaceWithPacketData(int x, int z, FriendlyByteBuf buf, CompoundTag nbt, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer)
     {
-        LevelChunk LevelChunk = chunks.get(ChunkPos.asLong(x, z));
-        if (LevelChunk == null)
+        LevelChunk levelChunk = chunks.get(ChunkPos.asLong(x, z));
+        if (levelChunk == null)
         {
-            LevelChunk = new LevelChunk(this.world, new ChunkPos(x, z));
-            LevelChunk.replaceWithPacketData(buf, nbt, consumer);
-            this.chunks.put(ChunkPos.asLong(x, z), LevelChunk);
+            levelChunk = new LevelChunk(this.world, new ChunkPos(x, z));
+            levelChunk.replaceWithPacketData(buf, nbt, consumer);
+            this.chunks.put(ChunkPos.asLong(x, z), levelChunk);
         }
         else
         {
-            world.unload(LevelChunk);
-            LevelChunk.replaceWithPacketData(buf, nbt, consumer);
+            world.unload(levelChunk);
+            levelChunk.replaceWithPacketData(buf, nbt, consumer);
         }
+
+        for (BiConsumer<ClientLevel, net.minecraft.world.level.chunk.LevelChunk> loadCallbackEntry : loadCallback)
+        {
+            loadCallbackEntry.accept(world, levelChunk);
+        }
+
         unloadedOnServer.remove(ChunkPos.asLong(x, z));
         this.world.onChunkLoaded(new ChunkPos(x, z));
 
-        return LevelChunk;
+        return levelChunk;
     }
 
     @Override
@@ -98,6 +109,11 @@ public class FarsightClientChunkManager extends ClientChunkCache
         if (chunk == null)
         {
             return;
+        }
+
+        for (final BiConsumer<ClientLevel, LevelChunk> unloader : unloadCallback)
+        {
+            unloader.accept(world, chunk);
         }
 
         world.unload(chunk);

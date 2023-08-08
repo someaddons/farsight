@@ -23,7 +23,7 @@ public abstract class ClientOptionsMixin
           "options.renderDistance",
           OptionInstance.noTooltip(),
           (optionText, value) -> genericValueLabel(optionText, Component.translatable("options.chunks", new Object[] {value})),
-          new OptionInstance.IntRange(2, FarsightMod.getConfig().getCommonConfig().maxRenderDistance),
+          new OptionInstance.IntRange(2, FarsightMod.config.getCommonConfig().maxRenderDistance),
           12,
           value -> {
               Minecraft.getInstance().levelRenderer.needsUpdate();
@@ -34,7 +34,7 @@ public abstract class ClientOptionsMixin
           "options.simulationDistance",
           OptionInstance.noTooltip(),
           (optionText, value) -> genericValueLabel(optionText, Component.translatable("options.chunks", new Object[] {value})),
-          new OptionInstance.IntRange(5, FarsightMod.getConfig().getCommonConfig().maxRenderDistance),
+          new OptionInstance.IntRange(5, FarsightMod.config.getCommonConfig().maxRenderDistance),
           12,
           value -> {
           }

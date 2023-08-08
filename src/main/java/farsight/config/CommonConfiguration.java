@@ -1,9 +1,9 @@
 package farsight.config;
 
+import com.cupboard.config.ICommonConfig;
 import com.google.gson.JsonObject;
-import farsight.FarsightMod;
 
-public class CommonConfiguration
+public class CommonConfiguration implements ICommonConfig
 {
     public int maxRenderDistance = 64;
 
@@ -21,12 +21,6 @@ public class CommonConfiguration
 
     public void deserialize(JsonObject data)
     {
-        if (data == null)
-        {
-            FarsightMod.LOGGER.error("Config file was empty!");
-            return;
-        }
-
         maxRenderDistance = data.get("maxRenderDistance").getAsJsonObject().get("maxRenderDistance").getAsInt();
     }
 }
