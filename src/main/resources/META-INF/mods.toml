@@ -53,7 +53,7 @@ Simple efficient mod to yield higher view distances on client side, regardless o
     modId="minecraft"
     mandatory=true
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
-    versionRange="[1.20,1.30)"
+    versionRange="[1.19,1.20)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.farsight]]
