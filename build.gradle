@@ -82,8 +82,15 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories{
+    mavenLocal()
+    flatDir { dirs 'libs' }
+    mavenCentral()
+
     maven {
         url "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
     }
 }
 
@@ -95,6 +102,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}" //21
 
     annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+    implementation fg.deobf("curse.maven:cupboard-326652:4669193")
 }
 
 jar {
@@ -114,4 +122,10 @@ jar {
 
 jar.finalizedBy('reobfJar')
 
-
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            artifact jar
+        }
+    }
+}

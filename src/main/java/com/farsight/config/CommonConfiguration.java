@@ -1,21 +1,26 @@
 package com.farsight.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import com.cupboard.config.ICommonConfig;
+import com.google.gson.JsonObject;
 
-public class CommonConfiguration
+public class CommonConfiguration implements ICommonConfig
 {
-    public final ForgeConfigSpec          ForgeConfigSpecBuilder;
-    public final ForgeConfigSpec.IntValue maxchunkdist;
+    public int maxchunkdist = 32;
 
-    protected CommonConfiguration(final ForgeConfigSpec.Builder builder)
+    public JsonObject serialize()
     {
-        builder.push("Config category");
+        final JsonObject root = new JsonObject();
 
-        builder.comment("The distance at which chunks are kept in memory, regardless of whether the server unloads them. default = 32, maximum = 512");
-        maxchunkdist = builder.defineInRange("maxchunkdist", 32, 8, 512);
+        final JsonObject entry2 = new JsonObject();
+        entry2.addProperty("desc:", "The distance at which chunks are kept in memory, regardless of whether the server unloads them. default = 32, maximum = 512");
+        entry2.addProperty("maxchunkdist", maxchunkdist);
+        root.add("maxchunkdist", entry2);
 
-        // Escapes the current category level
-        builder.pop();
-        ForgeConfigSpecBuilder = builder.build();
+        return root;
+    }
+
+    public void deserialize(JsonObject data)
+    {
+        maxchunkdist = data.get("maxchunkdist").getAsJsonObject().get("maxchunkdist").getAsInt();
     }
 }

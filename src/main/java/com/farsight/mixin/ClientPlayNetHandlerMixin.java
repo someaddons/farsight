@@ -23,12 +23,12 @@ public class ClientPlayNetHandlerMixin
     @Redirect(method = "handleSetChunkCacheRadius", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/protocol/game/ClientboundSetChunkCacheRadiusPacket;getRadius()I"))
     private int onViewDistChange(final ClientboundSetChunkCacheRadiusPacket sUpdateViewDistancePacket)
     {
-        return FarsightMod.config.getCommonConfig().maxchunkdist.get();
+        return FarsightMod.config.getCommonConfig().maxchunkdist;
     }
 
     @Redirect(method = "handleLogin", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/protocol/game/ClientboundLoginPacket;chunkRadius()I"))
     private int onJoinGame(final ClientboundLoginPacket sJoinGamePacket)
     {
-        return FarsightMod.config.getCommonConfig().maxchunkdist.get();
+        return FarsightMod.config.getCommonConfig().maxchunkdist;
     }
 }
