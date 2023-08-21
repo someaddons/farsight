@@ -2,11 +2,11 @@
   "required": false,
   "package": "com.farsight.mixin",
   "compatibilityLevel": "JAVA_8",
-  "refmap": "farsight.refmap.json",
+  "refmap": "refmap.farsight.json",
   "mixins": [
   ],
   "client": [
-    "ClientPlayNetHandlerMixin"
+    "ChunkProviderClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1
