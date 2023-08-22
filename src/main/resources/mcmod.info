@@ -1,26 +1,19 @@
 [
   {
-    "modid": "${mod_id}",
-    "name": "${mod_name}",
-    "description": "${mod_description}",
-    "version": "${version}",
-    "mcversion": "${mcversion}",
+    "modid": "farsight",
+    "name": "Farsight",
+    "description": "",
+    "version": "1.6",
+    "mcversion": "1.12.2",
     "url": "",
     "updateUrl": "",
-    "authorList": $
-  {
-    mod_author
-  },
-  "credits"
-  :
-  "",
-  "logoFile"
-  :
-  "",
-  "screenshots"
-  :
-  [],
-  "dependencies"
+    "authorList": [
+      "Someaddon"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies"
   :
   []
   }

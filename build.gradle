@@ -62,15 +62,11 @@ dependencies {
 }
 
 processResources {
-    inputs.property "version", project.version
+    inputs.property "version", 1.6
     inputs.property "mcversion", minecraft_version
 
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-
-        expand 'mod_id': mod_id, 'mod_name': mod_name, 'version': project.version,
-                'mcversion': minecraft_version, 'mod_description': mod_description,
-                'mod_author': mod_author
     }
 
     from(sourceSets.main.resources.srcDirs) {
@@ -91,6 +87,7 @@ jar {
     }
 
     manifest {
+        attributes "FMLCorePluginContainsFMLMod": "true"
         attributes "ForceLoadAsMod": "true"
         attributes "TweakClass": "org.spongepowered.asm.launch.MixinTweaker"
         attributes "TweakOrder": "0"
