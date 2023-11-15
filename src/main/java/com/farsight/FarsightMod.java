@@ -47,7 +47,7 @@ public class FarsightMod
         });
 
         FarsightClientChunkManager.loadCallback.add((level, levelChunk) -> {
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.level.ChunkEvent.Load(levelChunk, false));
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.level.ChunkEvent.Load(levelChunk));
         });
 
         if ((FMLLoader.getLoadingModList().getModFileById("embeddium") != null) || (FMLLoader.getLoadingModList().getModFileById("rubidium") != null) || (
