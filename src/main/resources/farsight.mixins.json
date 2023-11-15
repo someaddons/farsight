@@ -6,7 +6,10 @@
   "mixins": [
   ],
   "client": [
-    "ClientPlayNetHandlerMixin"
+    "ClientOptionsMixin",
+    "ClientPlayNetHandlerMixin",
+    "ClientWorldMixin",
+    "SodiumGameOptionPagesMixin"
   ],
   "injectors": {
     "defaultRequire": 1
