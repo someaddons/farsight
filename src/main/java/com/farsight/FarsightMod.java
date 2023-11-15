@@ -1,7 +1,6 @@
 package com.farsight;
 
 import com.cupboard.config.CupboardConfig;
-import com.farsight.compat.SodiumCompat;
 import com.farsight.config.CommonConfiguration;
 import com.farsight.event.ClientEventHandler;
 import com.farsight.event.EventHandler;
@@ -13,7 +12,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -47,14 +45,8 @@ public class FarsightMod
         });
 
         FarsightClientChunkManager.loadCallback.add((level, levelChunk) -> {
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.level.ChunkEvent.Load(levelChunk, false));
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.level.ChunkEvent.Load(levelChunk));
         });
-
-        if ((FMLLoader.getLoadingModList().getModFileById("embeddium") != null) || (FMLLoader.getLoadingModList().getModFileById("rubidium") != null) || (
-          FMLLoader.getLoadingModList().getModFileById("sodium") != null))
-        {
-            SodiumCompat.init();
-        }
     }
 
     private void setup(final FMLCommonSetupEvent event)

@@ -103,7 +103,7 @@ dependencies {
 
     annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
     implementation fg.deobf("curse.maven:cupboard-326652:4669193")
-    compileOnly("me.jellysquid.mods:embeddium-0.2.9+mc1.20.1")
+    compileOnly("me.jellysquid.mods:embeddium-0.2.9+mc1.19.2")
     minecraftLibrary 'org.jctools:jctools-core:4.0.1'
     jarJar(group:'org.jctools',name:'jctools-core', version:'[4.0.1,)')
 }
