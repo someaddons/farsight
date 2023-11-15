@@ -47,7 +47,7 @@ public abstract class ClientPlayNetHandlerMixin
     {
         PacketUtils.ensureRunningOnSameThread(clientboundForgetLevelChunkPacket, (ClientPacketListener) (Object) this, this.minecraft);
         ClientChunkCache clientChunkManager = level.getChunkSource();
-        if (clientChunkManager instanceof FarsightClientChunkManager && ((FarsightClientChunkManager) clientChunkManager).checkUnload(clientboundForgetLevelChunkPacket))
+        if (clientChunkManager instanceof FarsightClientChunkManager && ((FarsightClientChunkManager) clientChunkManager).delayUnload(clientboundForgetLevelChunkPacket))
         {
             ((FarsightClientChunkManager) clientChunkManager).packetListener = (ClientPacketListener) (Object) this;
             ci.cancel();

@@ -32,6 +32,7 @@ public class FarsightClientChunkManager extends ClientChunkCache
     private final  Long2ObjectOpenHashMap<ClientboundForgetLevelChunkPacket> unloadedOnServer        = new Long2ObjectOpenHashMap();
     private final  ClientLevel                                               world;
     public         ClientPacketListener                                      packetListener          = null;
+
     public static  List<BiConsumer<ClientLevel, LevelChunk>>                 unloadCallback          = new ArrayList<>();
     public static  List<BiConsumer<ClientLevel, LevelChunk>>                 loadCallback            = new ArrayList<>();
 
@@ -135,7 +136,7 @@ public class FarsightClientChunkManager extends ClientChunkCache
      * @param packet
      * @return true if unloading is prevented/scheduled for later
      */
-    public boolean checkUnload(final ClientboundForgetLevelChunkPacket packet)
+    public boolean delayUnload(final ClientboundForgetLevelChunkPacket packet)
     {
         if (unloading)
         {
@@ -143,39 +144,37 @@ public class FarsightClientChunkManager extends ClientChunkCache
         }
 
         final Player player = Minecraft.getInstance().player;
-        if (player != null && player.chunkPosition().getChessboardDistance(new ChunkPos(packet.getX(), packet.getZ()))
-                                > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
+
+        if (player == null)
+        {
+            unloadedOnServer.clear();
+            return false;
+        }
+
+        if (player.chunkPosition().getChessboardDistance(new ChunkPos(packet.getX(), packet.getZ()))
+              > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
         {
             return false;
         }
-        else
-        {
-            unloadedOnServer.put(ChunkPos.asLong(packet.getX(), packet.getZ()), packet);
-            if (player != null)
-            {
-                for (ObjectIterator<Long2ObjectMap.Entry<ClientboundForgetLevelChunkPacket>> iterator = unloadedOnServer.long2ObjectEntrySet().fastIterator(); iterator.hasNext(); )
-                {
-                    final Long2ObjectMap.Entry<ClientboundForgetLevelChunkPacket> entry = iterator.next();
-                    final long chunkLong = entry.getLongKey();
-                    if (getChebyshevDistance(player.chunkPosition().x, player.chunkPosition().z, ChunkPos.getX(chunkLong), ChunkPos.getZ(chunkLong))
-                          > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
-                    {
-                        unloading = true;
-                        if (packetListener != null)
-                        {
-                            packetListener.handleForgetLevelChunk(entry.getValue());
-                        }
-                        unloading = false;
-                        iterator.remove();
-                    }
-                }
-            }
-            else
-            {
-                unloadedOnServer.clear();
-            }
 
-            return true;
+        unloadedOnServer.put(ChunkPos.asLong(packet.getX(), packet.getZ()), packet);
+        for (ObjectIterator<Long2ObjectMap.Entry<ClientboundForgetLevelChunkPacket>> iterator = unloadedOnServer.long2ObjectEntrySet().fastIterator(); iterator.hasNext(); )
+        {
+            final Long2ObjectMap.Entry<ClientboundForgetLevelChunkPacket> entry = iterator.next();
+            final long chunkLong = entry.getLongKey();
+            if (getChebyshevDistance(player.chunkPosition().x, player.chunkPosition().z, ChunkPos.getX(chunkLong), ChunkPos.getZ(chunkLong))
+                  > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
+            {
+                unloading = true;
+                if (packetListener != null)
+                {
+                    packetListener.handleForgetLevelChunk(entry.getValue());
+                }
+                unloading = false;
+                iterator.remove();
+            }
         }
+
+        return true;
     }
 }
