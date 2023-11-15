@@ -103,9 +103,9 @@ public class FarsightClientChunkManager extends ClientChunkCache
     }
 
     @Override
-    public void drop(int chunkX, int chunkZ)
+    public void drop(ChunkPos pos)
     {
-        final LevelChunk chunk = chunks.remove(ChunkPos.asLong(chunkX, chunkZ));
+        final LevelChunk chunk = chunks.remove(pos.toLong());
         if (chunk == null)
         {
             return;
@@ -143,14 +143,14 @@ public class FarsightClientChunkManager extends ClientChunkCache
         }
 
         final Player player = Minecraft.getInstance().player;
-        if (player != null && player.chunkPosition().getChessboardDistance(new ChunkPos(packet.getX(), packet.getZ()))
+        if (player != null && player.chunkPosition().getChessboardDistance(packet.pos())
                                 > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
         {
             return false;
         }
         else
         {
-            unloadedOnServer.put(ChunkPos.asLong(packet.getX(), packet.getZ()), packet);
+            unloadedOnServer.put(packet.pos().toLong(), packet);
             if (player != null)
             {
                 for (ObjectIterator<Long2ObjectMap.Entry<ClientboundForgetLevelChunkPacket>> iterator = unloadedOnServer.long2ObjectEntrySet().fastIterator(); iterator.hasNext(); )

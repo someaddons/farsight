@@ -42,7 +42,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     implementation include('org.jctools:jctools-core:4.0.1')
-    modImplementation("me.jellysquid.mods:sodium-fabric-mc1.20.1-0.5.0")
+    modImplementation("me.jellysquid.mods:sodium-fabric-mc1.20.2-0.5.3")
     modImplementation("curse.maven:cupboard-326652:4669189")
 }
 
@@ -50,7 +50,7 @@ loom {
     runs {
         client {
             programArg '--username=Dev'
-            programArg '--uuid=123123123123123'
+            programArg '--uuid=7f908e1f-9e3a-4597-8013-e1911e827832'
             vmArg '-Dmixin.debug=true'
         }
         server {
