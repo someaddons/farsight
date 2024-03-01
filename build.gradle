@@ -42,7 +42,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     implementation include('org.jctools:jctools-core:4.0.1')
-    modImplementation("me.jellysquid.mods:sodium-fabric-mc1.20.2-0.5.3")
+    modImplementation("me.jellysquid.mods:sodium-fabric-mc1.20.4-0.5.8")
     modImplementation("curse.maven:cupboard-326652:4669189")
 }
 
