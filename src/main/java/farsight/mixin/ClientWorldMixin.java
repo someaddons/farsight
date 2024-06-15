@@ -1,12 +1,6 @@
 package farsight.mixin;
 
 import farsight.FarsightClientChunkManager;
-import net.minecraft.client.multiplayer.ClientChunkCache;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceKey;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -16,8 +10,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Supplier;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.world.ClientChunkManager;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
 
-@Mixin(ClientLevel.class)
+@Mixin(ClientWorld.class)
 /**
  * Exchanges the client's chunk map with a custom implementation, which can handle chunks at any distance apart fine
  */
@@ -26,22 +26,22 @@ public class ClientWorldMixin
     @Shadow
     @Final
     @Mutable
-    private ClientChunkCache chunkSource;
+    private ClientChunkManager chunkSource;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onInit(
-      final ClientPacketListener clientPacketListener,
-      final ClientLevel.ClientLevelData clientLevelData,
-      final ResourceKey resourceKey,
-      final Holder holder,
+      final ClientPlayNetworkHandler clientPacketListener,
+      final ClientWorld.Properties clientLevelData,
+      final RegistryKey resourceKey,
+      final RegistryEntry holder,
       final int i,
       final int j,
       final Supplier supplier,
-      final LevelRenderer levelRenderer,
+      final WorldRenderer levelRenderer,
       final boolean bl,
       final long l,
       final CallbackInfo ci)
     {
-        chunkSource = new FarsightClientChunkManager((ClientLevel) ((Object) this));
+        chunkSource = new FarsightClientChunkManager((ClientWorld) ((Object) this));
     }
 }

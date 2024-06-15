@@ -2,7 +2,7 @@ plugins {
     id 'fabric-loom' version "${loom_version}"
     id 'maven-publish'
     id 'io.github.juuxel.loom-quiltflower' version "${quiltflower_version}"
-    id 'com.github.johnrengelman.shadow' version '7.1.2' apply false
+    id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
 }
 
 quiltflower {
@@ -38,11 +38,11 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
+    mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     implementation include('org.jctools:jctools-core:4.0.1')
-    modImplementation("me.jellysquid.mods:sodium-fabric-mc1.20.2-0.5.3")
+    modImplementation("me.jellysquid.mods:sodium-fabric-0.5.9+mc1.21")
     modImplementation("curse.maven:cupboard-326652:4669189")
 }
 
@@ -68,7 +68,7 @@ processResources {
     }
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 21
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
