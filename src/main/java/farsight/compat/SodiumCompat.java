@@ -1,15 +1,16 @@
 package farsight.compat;
 
 import farsight.FarsightClientChunkManager;
-import me.jellysquid.mods.sodium.client.render.chunk.map.ChunkTrackerHolder;
+import net.caffeinemc.mods.sodium.client.render.chunk.map.ChunkStatus;
+import net.caffeinemc.mods.sodium.client.render.chunk.map.ChunkTrackerHolder;
 
 public class SodiumCompat
 {
     public static void init()
     {
         FarsightClientChunkManager.loadCallback.add(((clientLevel, levelChunk) -> ChunkTrackerHolder.get(clientLevel)
-          .onChunkStatusAdded(levelChunk.getPos().x, levelChunk.getPos().z, 1)));
+                                                                                    .onChunkStatusAdded(levelChunk.getPos().x, levelChunk.getPos().z, ChunkStatus.FLAG_ALL)));
         FarsightClientChunkManager.unloadCallback.add(((clientLevel, levelChunk) -> ChunkTrackerHolder.get(clientLevel)
-          .onChunkStatusRemoved(levelChunk.getPos().x, levelChunk.getPos().z, 1)));
+                                                                                      .onChunkStatusRemoved(levelChunk.getPos().x, levelChunk.getPos().z, ChunkStatus.FLAG_ALL)));
     }
 }
