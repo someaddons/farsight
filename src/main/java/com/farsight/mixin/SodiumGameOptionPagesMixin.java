@@ -1,7 +1,7 @@
 package com.farsight.mixin;
 
 import com.farsight.FarsightMod;
-import me.jellysquid.mods.sodium.client.gui.SodiumGameOptionPages;
+import net.caffeinemc.mods.sodium.client.gui.SodiumGameOptionPages;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
