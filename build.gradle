@@ -3,7 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.142'
+    id 'net.neoforged.gradle.userdev' version '7.0.183'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -55,7 +55,6 @@ runs {
 
     server {
         systemProperty 'forge.enabledGameTestNamespaces', project.modid
-        programArgument '--nogui'
     }
 
     // This run config launches GameTestServer and runs all registered gametests, then exits.
