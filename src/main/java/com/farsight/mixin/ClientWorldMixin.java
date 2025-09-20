@@ -1,6 +1,7 @@
 package com.farsight.mixin;
 
 import com.farsight.FarsightClientChunkManager;
+import com.farsight.FarsightMod;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -42,6 +43,13 @@ public class ClientWorldMixin
       final long l,
       final CallbackInfo ci)
     {
-        chunkSource = new FarsightClientChunkManager((ClientLevel) ((Object) this));
+        if (chunkSource.getClass().equals(ClientChunkCache.class))
+        {
+            chunkSource = new FarsightClientChunkManager((ClientLevel) ((Object) this));
+        }
+        else
+        {
+            FarsightMod.LOGGER.info("Farsight not enabled for: " + resourceKey + " as other mods changed the chunk source to:" + chunkSource.getClass());
+        }
     }
 }
