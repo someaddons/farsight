@@ -120,6 +120,16 @@ public class FarsightClientChunkManager extends ClientChunkCache
         world.unload(chunk);
     }
 
+    @Override
+    public void replaceBiomes(int x, int z, FriendlyByteBuf data)
+    {
+        LevelChunk levelChunk = chunks.get(ChunkPos.asLong(x, z));
+        if (levelChunk != null)
+        {
+            levelChunk.replaceBiomes(data);
+        }
+    }
+
     public int getChebyshevDistance(int chunkXa, int chunkZa, int chunkXb, int chunkZb)
     {
         return Math.max(Math.abs(chunkXa - chunkXb), Math.abs(chunkZa - chunkZb));
