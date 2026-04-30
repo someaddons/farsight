@@ -26,7 +26,10 @@ public abstract class ClientOptionsMixin
           new OptionInstance.IntRange(2, FarsightMod.config.getCommonConfig().maxRenderDistance),
           12,
           value -> {
-              Minecraft.getInstance().levelRenderer.needsUpdate();
+              if (Minecraft.getInstance().levelRenderer != null)
+              {
+                  Minecraft.getInstance().levelRenderer.needsUpdate();
+              }
           }
         );
 

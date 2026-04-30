@@ -8,8 +8,7 @@
   "client": [
     "ClientOptionsMixin",
     "ClientPlayNetHandlerMixin",
-    "ClientWorldMixin",
-    "SodiumGameOptionPagesMixin"
+    "ClientWorldMixin"
   ],
   "injectors": {
     "defaultRequire": 1

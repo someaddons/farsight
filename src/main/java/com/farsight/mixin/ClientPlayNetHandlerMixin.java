@@ -44,7 +44,7 @@ public abstract class ClientPlayNetHandlerMixin extends ClientCommonPacketListen
       final ClientboundForgetLevelChunkPacket clientboundForgetLevelChunkPacket,
       final CallbackInfo ci)
     {
-        PacketUtils.ensureRunningOnSameThread(clientboundForgetLevelChunkPacket, (ClientPacketListener) (Object) this, this.minecraft);
+        PacketUtils.ensureRunningOnSameThread(clientboundForgetLevelChunkPacket, (ClientPacketListener) (Object) this, this.minecraft.packetProcessor());
         ClientChunkCache clientChunkManager = level.getChunkSource();
         if (clientChunkManager instanceof FarsightClientChunkManager && ((FarsightClientChunkManager) clientChunkManager).delayUnload(clientboundForgetLevelChunkPacket))
         {

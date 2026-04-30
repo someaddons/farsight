@@ -31,17 +31,17 @@ public class ClientWorldMixin
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onInit(
-      final ClientPacketListener clientPacketListener,
-      final ClientLevel.ClientLevelData clientLevelData,
-      final ResourceKey resourceKey,
-      final Holder holder,
-      final int i,
-      final int j,
-      final Supplier supplier,
-      final LevelRenderer levelRenderer,
-      final boolean bl,
-      final long l,
-      final CallbackInfo ci)
+        final ClientPacketListener connection,
+        final ClientLevel.ClientLevelData levelData,
+        final ResourceKey dimension,
+        final Holder dimensionType,
+        final int serverChunkRadius,
+        final int serverSimulationDistance,
+        final LevelRenderer levelRenderer,
+        final boolean isDebug,
+        final long biomeZoomSeed,
+        final int seaLevel,
+        final CallbackInfo ci)
     {
         if (chunkSource.getClass().equals(ClientChunkCache.class))
         {
@@ -49,7 +49,7 @@ public class ClientWorldMixin
         }
         else
         {
-            FarsightMod.LOGGER.info("Farsight not enabled for: " + resourceKey + " as other mods changed the chunk source to:" + chunkSource.getClass());
+            FarsightMod.LOGGER.info("Farsight not enabled for: " + dimension + " as other mods changed the chunk source to:" + chunkSource.getClass());
         }
     }
 }

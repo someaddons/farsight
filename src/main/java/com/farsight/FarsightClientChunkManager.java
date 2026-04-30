@@ -1,5 +1,6 @@
 package com.farsight;
 
+import com.cupboard.util.RegistryLookup;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -18,10 +19,13 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.levelgen.Heightmap;
 import org.jctools.maps.NonBlockingHashMapLong;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -45,7 +49,7 @@ public class FarsightClientChunkManager extends ClientChunkCache
     {
         super(world, 5);
         EMPTY = new EmptyLevelChunk(
-          world, new ChunkPos(0, 0), world.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS)
+          world, new ChunkPos(0, 0), RegistryLookup.getHolder(world, Registries.BIOME,Biomes.PLAINS)
         );
         this.world = world;
     }
@@ -53,7 +57,7 @@ public class FarsightClientChunkManager extends ClientChunkCache
     @Override
     public LevelChunk getChunk(int x, int z, ChunkStatus leastStatus, boolean create)
     {
-        final LevelChunk chunk = chunks.get(ChunkPos.asLong(x, z));
+        final LevelChunk chunk = chunks.get(ChunkPos.pack(x, z));
         if (chunk != null)
         {
             return chunk;
@@ -85,22 +89,22 @@ public class FarsightClientChunkManager extends ClientChunkCache
     }
 
     @Override
-    public LevelChunk replaceWithPacketData(int x, int z, FriendlyByteBuf buf, CompoundTag nbt, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer)
+    public @Nullable LevelChunk replaceWithPacketData(int x, int z, FriendlyByteBuf buf, Map<Heightmap.Types, long[]> heightmaps, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer)
     {
-        LevelChunk levelChunk = chunks.get(ChunkPos.asLong(x, z));
+        LevelChunk levelChunk = chunks.get(ChunkPos.pack(x, z));
         if (levelChunk == null)
         {
             levelChunk = new LevelChunk(this.world, new ChunkPos(x, z));
-            levelChunk.replaceWithPacketData(buf, nbt, consumer);
-            this.chunks.put(ChunkPos.asLong(x, z), levelChunk);
+            levelChunk.replaceWithPacketData(buf, heightmaps, consumer);
+            this.chunks.put(ChunkPos.pack(x, z), levelChunk);
         }
         else
         {
             world.unload(levelChunk);
-            levelChunk.replaceWithPacketData(buf, nbt, consumer);
+            levelChunk.replaceWithPacketData(buf, heightmaps, consumer);
         }
 
-        unloadedOnServer.remove(ChunkPos.asLong(x, z));
+        unloadedOnServer.remove(ChunkPos.pack(x, z));
         this.world.onChunkLoaded(new ChunkPos(x, z));
 
         // On forge after worldcall for some reason
@@ -115,7 +119,7 @@ public class FarsightClientChunkManager extends ClientChunkCache
     @Override
     public void drop(final ChunkPos pos)
     {
-        final LevelChunk chunk = chunks.remove(pos.toLong());
+        final LevelChunk chunk = chunks.remove(pos.pack());
         if (chunk == null)
         {
             return;
@@ -132,7 +136,7 @@ public class FarsightClientChunkManager extends ClientChunkCache
     @Override
     public void replaceBiomes(int x, int z, FriendlyByteBuf data)
     {
-        LevelChunk levelChunk = chunks.get(ChunkPos.asLong(x, z));
+        LevelChunk levelChunk = chunks.get(ChunkPos.pack(x, z));
         if (levelChunk != null)
         {
             levelChunk.replaceBiomes(data);
@@ -170,18 +174,18 @@ public class FarsightClientChunkManager extends ClientChunkCache
             return false;
         }
 
-        if (player.chunkPosition().getChessboardDistance(new ChunkPos(packet.pos().x, packet.pos().z))
+        if (player.chunkPosition().getChessboardDistance(new ChunkPos(packet.pos().x(), packet.pos().z()))
               > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
         {
             return false;
         }
 
-        unloadedOnServer.put(ChunkPos.asLong(packet.pos().x, packet.pos().z), packet);
+        unloadedOnServer.put(ChunkPos.pack(packet.pos().x(), packet.pos().z()), packet);
         for (ObjectIterator<Long2ObjectMap.Entry<ClientboundForgetLevelChunkPacket>> iterator = unloadedOnServer.long2ObjectEntrySet().fastIterator(); iterator.hasNext(); )
         {
             final Long2ObjectMap.Entry<ClientboundForgetLevelChunkPacket> entry = iterator.next();
             final long chunkLong = entry.getLongKey();
-            if (getChebyshevDistance(player.chunkPosition().x, player.chunkPosition().z, ChunkPos.getX(chunkLong), ChunkPos.getZ(chunkLong))
+            if (getChebyshevDistance(player.chunkPosition().x(), player.chunkPosition().z(), ChunkPos.getX(chunkLong), ChunkPos.getZ(chunkLong))
                   > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
             {
                 unloading = true;

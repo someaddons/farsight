@@ -9,8 +9,8 @@ public class SodiumCompat
     public static void init()
     {
         FarsightClientChunkManager.loadCallback.add(((clientLevel, levelChunk) -> ChunkTrackerHolder.get(clientLevel)
-          .onChunkStatusAdded(levelChunk.getPos().x, levelChunk.getPos().z, ChunkStatus.FLAG_ALL)));
+          .onChunkStatusAdded(levelChunk.getPos().x(), levelChunk.getPos().z(), ChunkStatus.FLAG_ALL)));
         FarsightClientChunkManager.unloadCallback.add(((clientLevel, levelChunk) -> ChunkTrackerHolder.get(clientLevel)
-          .onChunkStatusRemoved(levelChunk.getPos().x, levelChunk.getPos().z, ChunkStatus.FLAG_ALL)));
+          .onChunkStatusRemoved(levelChunk.getPos().x(), levelChunk.getPos().z(), ChunkStatus.FLAG_ALL)));
     }
 }

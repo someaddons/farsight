@@ -14,8 +14,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.embeddedt.embeddium.impl.Embeddium;
-
 import java.util.Random;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -45,8 +43,8 @@ public class FarsightMod
             NeoForge.EVENT_BUS.post(new ChunkEvent.Load(levelChunk, false));
         });
 
-        if ((FMLLoader.getLoadingModList().getModFileById("rubidium") != null) || (
-          FMLLoader.getLoadingModList().getModFileById("sodium") != null))
+        if ((FMLLoader.getCurrent().getLoadingModList().getModFileById("rubidium") != null) || (
+          FMLLoader.getCurrent().getLoadingModList().getModFileById("sodium") != null))
         {
             SodiumCompat.init();
         }
