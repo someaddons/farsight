@@ -1,7 +1,7 @@
-package farsight.mixin;
+package com.farsight.mixin;
 
-import farsight.FarsightClientChunkManager;
-import farsight.FarsightMod;
+import com.farsight.FarsightClientChunkManager;
+import com.farsight.FarsightMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.*;
 import net.minecraft.network.Connection;
@@ -44,7 +44,7 @@ public abstract class ClientPlayNetHandlerMixin extends ClientCommonPacketListen
       final ClientboundForgetLevelChunkPacket clientboundForgetLevelChunkPacket,
       final CallbackInfo ci)
     {
-        PacketUtils.ensureRunningOnSameThread(clientboundForgetLevelChunkPacket, (ClientPacketListener) (Object) this, this.minecraft);
+        PacketUtils.ensureRunningOnSameThread(clientboundForgetLevelChunkPacket, (ClientPacketListener) (Object) this, this.minecraft.packetProcessor());
         ClientChunkCache clientChunkManager = level.getChunkSource();
         if (clientChunkManager instanceof FarsightClientChunkManager && ((FarsightClientChunkManager) clientChunkManager).delayUnload(clientboundForgetLevelChunkPacket))
         {

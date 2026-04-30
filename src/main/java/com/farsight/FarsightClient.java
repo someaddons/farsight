@@ -1,6 +1,6 @@
-package farsight;
+package com.farsight;
 
-import farsight.compat.SodiumCompat;
+import com.farsight.compat.SodiumCompat;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

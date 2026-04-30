@@ -1,4 +1,4 @@
-package farsight.config;
+package com.farsight.config;
 
 import com.cupboard.config.ICommonConfig;
 import com.google.gson.JsonObject;

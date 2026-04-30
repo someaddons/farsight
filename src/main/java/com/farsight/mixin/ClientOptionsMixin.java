@@ -1,6 +1,6 @@
-package farsight.mixin;
+package com.farsight.mixin;
 
-import farsight.FarsightMod;
+import com.farsight.FarsightMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Options.class)
 public abstract class ClientOptionsMixin
 {
-    @Inject(method = "load", at = @At("HEAD"))
+    @Inject(method = "load()V", at = @At("HEAD"))
     private void onInit(final CallbackInfo ci)
     {
         this.renderDistance = new OptionInstance(
@@ -26,7 +26,10 @@ public abstract class ClientOptionsMixin
           new OptionInstance.IntRange(2, FarsightMod.config.getCommonConfig().maxRenderDistance),
           12,
           value -> {
-              Minecraft.getInstance().levelRenderer.needsUpdate();
+              if (Minecraft.getInstance().levelRenderer != null)
+              {
+                  Minecraft.getInstance().levelRenderer.needsUpdate();
+              }
           }
         );
 
