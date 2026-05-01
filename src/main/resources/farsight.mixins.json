@@ -4,6 +4,7 @@
   "package": "com.farsight.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "SodiumGameOptionPagesMixin"
   ],
   "client": [
     "ClientOptionsMixin",

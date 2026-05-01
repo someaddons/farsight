@@ -1,36 +1,17 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
-    }
-}
-
 plugins {
-    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
     id 'maven-publish'
 }
 
-def versionParts = project.minecraft_version.tokenize('.')
-def cleanVersion = versionParts.size() > 2 ? versionParts[0..-2].join('.') : project.minecraft_version
-version = cleanVersion + "-" + project.mod_version
-group = project.maven_group
+var ENV = System.getenv()
 
-loom {
-    accessWidenerPath = file("src/main/resources/${project.archives_base_name}.accessWidener")
-    runs {
-        client {
-            programArg '--username=Dev'
-            programArg '--uuid=c2f44529-eb64-40d0-b970-5ad748c7b377'
-            vmArg '-Dmixin.debug=true'
-        }
-        server {
-            runDir = "runserver"
-            vmArg '-Dmixin.debug=true'
-        }
-    }
+if (ENV.MCMC_BUILD_NUMBER) {
+    version = "${mod_version}.${ENV.MCMC_BUILD_NUMBER}"
+} else {
+    version = project.minecraft_version + "-" + project.mod_version
 }
+
+group = project.maven_group
 
 repositories {
     mavenLocal()
@@ -46,42 +27,47 @@ repositories {
 }
 
 dependencies {
+    // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    implementation("curse.maven:cupboard-326652:7906258")
-    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation("curse.maven:cupboard-326652:7748892")
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // Fabric API. This is technically optional, but you probably want it anyway.
-    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    compileOnly "curse.maven:sodium-394468:7867826"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     implementation include('org.jctools:jctools-core:4.0.1')
+    modImplementation "curse.maven:sodium-394468:7805158"
 }
 
 processResources {
-    inputs.property "version", project.version
+    def version = project.version
+    inputs.property "version", version
 
     filesMatching("fabric.mod.json") {
-        expand "version": inputs.properties.version
+        expand "version": version
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    it.options.release = 25
-}
-
-base {
-    archivesName = project.archives_base_name + "-fabric"
+    it.options.release = 21
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // if it is present.
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
+
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {
-    inputs.property "archivesName", project.base.archivesName
+    def projectName = project.name
+    inputs.property "projectName", projectName
 
     from("LICENSE") {
-        rename { "${it}_${inputs.properties.archivesName}" }
+        rename { "${it}_$projectName" }
     }
 }
 
@@ -89,7 +75,6 @@ jar {
 publishing {
     publications {
         create("mavenJava", MavenPublication) {
-            artifactId = project.archives_base_name
             from components.java
         }
     }
@@ -102,35 +87,3 @@ publishing {
         // retrieving dependencies.
     }
 }
-
-
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
-
-tasks.register("validateJson") {
-    def jsonFiles = layout.projectDirectory.asFileTree.matching {
-        include "src/main/resources/**/*.json"
-    }
-
-    doLast {
-        def mapper = new ObjectMapper()
-        def failed = false
-
-        jsonFiles.each { file ->
-            try {
-                mapper.readTree(file)
-            } catch (JsonProcessingException e) {
-                def loc = e.location
-                logger.error("${file.absolutePath}:${loc.lineNr}")
-                logger.error("JSON error: ${e.originalMessage}")
-                failed = true
-            }
-        }
-
-        if (failed) {
-            throw new GradleException("Invalid JSON files detected")
-        }
-    }
-}
-
-processResources.dependsOn validateJson
