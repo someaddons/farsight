@@ -8,7 +8,9 @@
   "client": [
     "ClientOptionsMixin",
     "ClientPlayNetHandlerMixin",
-    "ClientWorldMixin"
+    "ClientTickHookMixin",
+    "ClientWorldMixin",
+    "ClientBoundLevelChunkWIthLightPacketMixin"
   ],
   "injectors": {
     "defaultRequire": 1
