@@ -108,6 +108,19 @@ configurations {
 
 dependencies {
     implementation "curse.maven:cupboard-326652:6078150"
+    implementation "curse.maven:embeddium-908741:5521849"
+    compileOnly "me.jellysquid.mods:sodium-neoforge-0.6.0-beta.1+mc1.21"
+    implementation 'org.jctools:jctools-core:4.0.1'
+    additionalRuntimeClasspath 'org.jctools:jctools-core:4.0.1'
+    jarJar(implementation("org.jctools:jctools-core")) {
+        version {
+            // The version range your mod is actually compatible with.
+            // Note that you may receive a *lower* version than your preferred if another
+            // Mod is only compatible up to 1.7.24, for example, your mod might get 1.7.24 at runtime.
+            strictly '[4.0.1,)'
+            prefer '4.0.1' // The version actually used in your dev workspace
+        }
+    }
 }
 
 def loaderVersionRange = providers.gradleProperty("loader_version_range")

@@ -2,6 +2,7 @@ package com.farsight.mixin;
 
 import com.farsight.FarsightClientChunkManager;
 import com.farsight.FarsightMod;
+import com.farsight.preview.PreviewRegionFileManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.*;
 import net.minecraft.network.Connection;
@@ -30,6 +31,7 @@ public abstract class ClientPlayNetHandlerMixin extends ClientCommonPacketListen
     @Redirect(method = "handleSetChunkCacheRadius", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/protocol/game/ClientboundSetChunkCacheRadiusPacket;getRadius()I"))
     private int onViewDistChange(final ClientboundSetChunkCacheRadiusPacket sUpdateViewDistancePacket)
     {
+        PreviewRegionFileManager.serverRenderDists = sUpdateViewDistancePacket.getRadius();
         return FarsightMod.config.getCommonConfig().maxRenderDistance;
     }
 

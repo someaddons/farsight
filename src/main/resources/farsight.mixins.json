@@ -9,7 +9,9 @@
     "ClientOptionsMixin",
     "ClientPlayNetHandlerMixin",
     "ClientWorldMixin",
-    "SodiumGameOptionPagesMixin"
+    "SodiumGameOptionPagesMixin",
+    "ClientTickHookMixin",
+    "ClientBoundLevelChunkWIthLightPacketMixin"
   ],
   "injectors": {
     "defaultRequire": 1
