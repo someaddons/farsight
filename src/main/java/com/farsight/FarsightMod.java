@@ -61,4 +61,12 @@ public class FarsightMod
     {
         LOGGER.info(MODID + " mod initialized");
     }
+
+    public static void logDebug(String message, Object... args)
+    {
+        if (config.getCommonConfig().debugLogging)
+        {
+            LOGGER.warn(message, args);
+        }
+    }
 }

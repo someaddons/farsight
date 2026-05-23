@@ -6,8 +6,10 @@
   "mixins": [
   ],
   "client": [
+    "ClientBoundLevelChunkWIthLightPacketMixin",
     "ClientOptionsMixin",
     "ClientPlayNetHandlerMixin",
+    "ClientTickHookMixin",
     "ClientWorldMixin",
     "SodiumGameOptionPagesMixin"
   ],

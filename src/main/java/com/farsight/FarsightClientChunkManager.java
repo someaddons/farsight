@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 
 /**
  * Simple client chunk manager, based on a concurrent hashmap. Unboxing here may be a performance bottleneck.
+ * // TODO: Could replace this whole thing with a custom handler packet handler which saves/loads chunk packets to disk, though this is still needed for higher view distances. Probably combine both, and have this as optional for compat
  */
 public class FarsightClientChunkManager extends ClientChunkCache
 {
