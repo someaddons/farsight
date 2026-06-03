@@ -294,7 +294,6 @@ public class PreviewRegionFile implements Closeable
 
         if (serverData == null)
         {
-            FarsightMod.LOGGER.warn("No server found, cannot create path");
             return null;
         }
 
