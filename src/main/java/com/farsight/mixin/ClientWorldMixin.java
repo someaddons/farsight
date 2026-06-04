@@ -43,11 +43,15 @@ public class ClientWorldMixin
     {
         if (chunkSource.getClass().equals(ClientChunkCache.class))
         {
-            chunkSource = new FarsightClientChunkManager((ClientLevel) ((Object) this));
+            if (FarsightMod.config.getCommonConfig().enableChunkManager)
+            {
+                chunkSource = new FarsightClientChunkManager((ClientLevel) ((Object) this));
+            }
         }
         else
         {
-            FarsightMod.LOGGER.info("Farsight not enabled for: " + dimension + " as other mods changed the chunk source to:" + chunkSource.getClass());
+            FarsightMod.LOGGER.info(
+                "Farsight not enabled for: " + dimension + " as other mods changed the chunk source to:" + chunkSource.getClass() + " only preview chunk feature may work");
         }
     }
 }

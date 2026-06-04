@@ -2,3 +2,5 @@ accessWidener   v2  official
 accessible field net/minecraft/client/multiplayer/ClientChunkCache emptyChunk Lnet/minecraft/world/level/chunk/LevelChunk;
 accessible field net/minecraft/client/multiplayer/ClientChunkCache lightEngine Lnet/minecraft/world/level/lighting/LevelLightEngine;
 accessible field net/minecraft/client/Minecraft pendingConnection Lnet/minecraft/network/Connection;
+accessible method net/minecraft/network/protocol/game/ClientboundLevelChunkWithLightPacket <init> (Lnet/minecraft/network/RegistryFriendlyByteBuf;)V
+accessible method net/minecraft/network/protocol/game/ClientboundLevelChunkWithLightPacket write (Lnet/minecraft/network/RegistryFriendlyByteBuf;)V

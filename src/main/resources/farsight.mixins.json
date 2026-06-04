@@ -4,10 +4,12 @@
   "package": "com.farsight.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "ClientBoundLevelChunkWIthLightPacketMixin"
   ],
   "client": [
     "ClientOptionsMixin",
     "ClientPlayNetHandlerMixin",
+    "ClientTickHookMixin",
     "ClientWorldMixin"
   ],
   "injectors": {
