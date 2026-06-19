@@ -34,15 +34,6 @@ public class FarsightMod
     @SubscribeEvent
     public void clientSetup(FMLClientSetupEvent event)
     {
-        // Side safe client event handler
-        FarsightClientChunkManager.unloadCallback.add((level, levelChunk) -> {
-            NeoForge.EVENT_BUS.post(new ChunkEvent.Unload(levelChunk));
-        });
-
-        FarsightClientChunkManager.loadCallback.add((level, levelChunk) -> {
-            NeoForge.EVENT_BUS.post(new ChunkEvent.Load(levelChunk, false));
-        });
-
         if ((FMLLoader.getCurrent().getLoadingModList().getModFileById("rubidium") != null) || (
           FMLLoader.getCurrent().getLoadingModList().getModFileById("sodium") != null))
         {

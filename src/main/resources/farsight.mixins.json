@@ -6,11 +6,10 @@
   "mixins": [
   ],
   "client": [
+    "ClientBoundLevelChunkWIthLightPacketMixin",
     "ClientOptionsMixin",
     "ClientPlayNetHandlerMixin",
-    "ClientTickHookMixin",
-    "ClientWorldMixin",
-    "ClientBoundLevelChunkWIthLightPacketMixin"
+    "ClientTickHooks"
   ],
   "injectors": {
     "defaultRequire": 1
