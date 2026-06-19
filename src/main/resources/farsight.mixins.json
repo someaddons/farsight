@@ -9,8 +9,7 @@
     "ClientBoundLevelChunkWIthLightPacketMixin",
     "ClientOptionsMixin",
     "ClientPlayNetHandlerMixin",
-    "ClientTickHookMixin",
-    "ClientWorldMixin",
+    "ClientTickHooks",
     "SodiumGameOptionPagesMixin"
   ],
   "injectors": {

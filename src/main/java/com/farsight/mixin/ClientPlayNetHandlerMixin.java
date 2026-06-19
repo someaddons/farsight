@@ -1,14 +1,13 @@
 package com.farsight.mixin;
 
-import com.farsight.FarsightClientChunkManager;
+import com.farsight.ClientChunkHandler;
 import com.farsight.FarsightMod;
 import com.farsight.preview.PreviewRegionFileManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientChunkCache;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket;
 import org.spongepowered.asm.mixin.Final;
@@ -22,9 +21,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPlayNetHandlerMixin
 {
-    @Shadow
-    private ClientLevel level;
-
     @Shadow
     @Final
     private Minecraft minecraft;
@@ -44,15 +40,19 @@ public abstract class ClientPlayNetHandlerMixin
 
     @Inject(method = "handleForgetLevelChunk", at = @At("HEAD"), cancellable = true)
     private void onChunkUnload(
-      final ClientboundForgetLevelChunkPacket clientboundForgetLevelChunkPacket,
-      final CallbackInfo ci)
+        final ClientboundForgetLevelChunkPacket clientboundForgetLevelChunkPacket,
+        final CallbackInfo ci)
     {
         PacketUtils.ensureRunningOnSameThread(clientboundForgetLevelChunkPacket, (ClientPacketListener) (Object) this, this.minecraft);
-        ClientChunkCache clientChunkManager = level.getChunkSource();
-        if (clientChunkManager instanceof FarsightClientChunkManager && ((FarsightClientChunkManager) clientChunkManager).delayUnload(clientboundForgetLevelChunkPacket))
+        if (ClientChunkHandler.delayUnload(clientboundForgetLevelChunkPacket, (ClientPacketListener) (Object) this))
         {
-            ((FarsightClientChunkManager) clientChunkManager).packetListener = (ClientPacketListener) (Object) this;
             ci.cancel();
         }
+    }
+
+    @Inject(method = "updateLevelChunk", at = @At("HEAD"))
+    private void onChunkUpdate(final int x, final int z, final ClientboundLevelChunkPacketData chunkData, final CallbackInfo ci)
+    {
+        ClientChunkHandler.onChunkUpdate(x, z);
     }
 }

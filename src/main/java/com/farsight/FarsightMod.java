@@ -42,14 +42,6 @@ public class FarsightMod
     {
         // Side safe client event handler
         Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventHandler.class);
-        FarsightClientChunkManager.unloadCallback.add((level, levelChunk) -> {
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.level.ChunkEvent.Unload(levelChunk));
-        });
-
-        FarsightClientChunkManager.loadCallback.add((level, levelChunk) -> {
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.level.ChunkEvent.Load(levelChunk, false));
-        });
-
         if ((FMLLoader.getLoadingModList().getModFileById("rubidium") != null) || (
           FMLLoader.getLoadingModList().getModFileById("sodium") != null))
         {
