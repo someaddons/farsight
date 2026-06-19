@@ -10,12 +10,8 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLLoader;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.level.ChunkEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.embeddedt.embeddium.impl.Embeddium;
-
 import java.util.Random;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -36,15 +32,6 @@ public class FarsightMod
     @SubscribeEvent
     public void clientSetup(FMLClientSetupEvent event)
     {
-        // Side safe client event handler
-        FarsightClientChunkManager.unloadCallback.add((level, levelChunk) -> {
-            NeoForge.EVENT_BUS.post(new ChunkEvent.Unload(levelChunk));
-        });
-
-        FarsightClientChunkManager.loadCallback.add((level, levelChunk) -> {
-            NeoForge.EVENT_BUS.post(new ChunkEvent.Load(levelChunk, false));
-        });
-
         if ((FMLLoader.getLoadingModList().getModFileById("rubidium") != null) || (
           FMLLoader.getLoadingModList().getModFileById("sodium") != null))
         {
