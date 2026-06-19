@@ -16,6 +16,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Options.class)
 public abstract class ClientOptionsMixin
 {
+    @Shadow
+    protected abstract void setGraphicsPresetToCustom();
+
     @Inject(method = "load()V", at = @At("HEAD"))
     private void onInit(final CallbackInfo ci)
     {
@@ -28,7 +31,7 @@ public abstract class ClientOptionsMixin
           value -> {
               if (Minecraft.getInstance().levelRenderer != null)
               {
-                  Minecraft.getInstance().levelRenderer.needsUpdate();
+                  setGraphicsPresetToCustom();
               }
           }
         );

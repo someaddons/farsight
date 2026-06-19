@@ -4,3 +4,4 @@ accessible field net/minecraft/client/multiplayer/ClientChunkCache lightEngine L
 accessible field net/minecraft/client/Minecraft pendingConnection Lnet/minecraft/network/Connection;
 accessible method net/minecraft/network/protocol/game/ClientboundLevelChunkWithLightPacket <init> (Lnet/minecraft/network/RegistryFriendlyByteBuf;)V
 accessible method net/minecraft/network/protocol/game/ClientboundLevelChunkWithLightPacket write (Lnet/minecraft/network/RegistryFriendlyByteBuf;)V
+accessible class net/minecraft/client/multiplayer/ClientChunkCache$Storage
