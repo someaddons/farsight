@@ -124,7 +124,12 @@ public class PreviewRegionFileManager
         }
     }
 
-    final private static ExecutorService ioExecutor = Executors.newSingleThreadExecutor();
+    private static final ExecutorService ioExecutor =
+            Executors.newSingleThreadExecutor(r -> {
+                Thread thread = new Thread(r, "farsightIO");
+                thread.setDaemon(true);
+                return thread;
+            });
 
     private static List<ChunkPos> toLoad           = new ArrayList<>();
     private static Set<ChunkPos>  pendingPositions = new HashSet<>();
