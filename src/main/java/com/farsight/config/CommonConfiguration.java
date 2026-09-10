@@ -20,7 +20,7 @@ public class CommonConfiguration implements ICommonConfig
         root.add("maxRenderDistance", entry2);
 
         final JsonObject cat1 = new JsonObject();
-        cat1.addProperty("descEnable:", "Enables chunk preview feature, which enables saving and loading previously visited chunks to/from disk, default false");
+        cat1.addProperty("descEnable:", "Enables chunk preview feature, which enables saving and loading previously visited chunks to/from disk, default true");
         cat1.addProperty("enabled", enableChunkPreview);
         cat1.addProperty("descSpeed:", "Set the speed at which chunk preview loads chunks from disk, default and minimum 1 Chunk per tick(20 per second)");
         cat1.addProperty("previewChunkLoadSpeed", previewChunkLoadSpeed);
