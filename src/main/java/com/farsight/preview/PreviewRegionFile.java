@@ -102,7 +102,7 @@ public class PreviewRegionFile implements Closeable
                 checkCompact();
             }
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             FarsightMod.logDebug("Failed to initialize region file:" + path, e);
             clearFile();
@@ -234,7 +234,7 @@ public class PreviewRegionFile implements Closeable
             channel.position(0);
             initializeFile();
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             FarsightMod.logDebug("Failed to reset file:" + path, e);
         }
@@ -399,7 +399,7 @@ public class PreviewRegionFile implements Closeable
             ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(registryFriendlyByteBuf);
             return packet;
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             // On Error: reset file as its format is not compatible or some other I/O error occured
             FarsightMod.logDebug("Failed to decode chunk for file: " + path + " resetting file", e);
