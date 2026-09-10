@@ -67,7 +67,7 @@ public class PreviewRegionFileManager
 
             return newRegion;
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             FarsightMod.logDebug("Error getting region file: " + file.toPath(), e);
             return null;
@@ -92,7 +92,7 @@ public class PreviewRegionFileManager
             {
                 regionFile.saveChunk(Minecraft.getInstance().level, packet.getX(), packet.getZ(), packet);
             }
-            catch (Exception e)
+            catch (Throwable e)
             {
                 FarsightMod.LOGGER.warn("Failed to save chunk packet: x:" + packet.getX() + " z:" + packet.getZ(), e);
             }
