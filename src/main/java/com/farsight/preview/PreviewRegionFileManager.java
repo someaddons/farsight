@@ -180,13 +180,16 @@ public class PreviewRegionFileManager
             pendingPositions.add(loadPos);
             ioExecutor.submit(() -> {
                 final ClientboundLevelChunkWithLightPacket packet = loadChunk(loadPos.x(), loadPos.z());
-                Minecraft.getInstance().submit(() -> {
-                    if (packet != null && clientLevel.getChunk(loadPos.x(), loadPos.z(), ChunkStatus.FULL, false) == null)
-                    {
-                        Minecraft.getInstance().getConnection().handleLevelChunkWithLight(packet);
-                        pendingPositions.remove(loadPos);
-                    }
-                });
+                if (packet != null)
+                {
+                    Minecraft.getInstance().submit(() -> {
+                        if (clientLevel.getChunk(loadPos.x(), loadPos.z(), ChunkStatus.FULL, false) == null)
+                        {
+                            Minecraft.getInstance().getConnection().handleLevelChunkWithLight(packet);
+                            pendingPositions.remove(loadPos);
+                        }
+                    });
+                }
             });
         }
     }
