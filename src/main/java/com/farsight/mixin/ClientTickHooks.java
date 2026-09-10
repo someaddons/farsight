@@ -30,9 +30,6 @@ public class ClientTickHooks
     @Inject(method = "Lnet/minecraft/client/Minecraft;updateLevelInEngines(Lnet/minecraft/client/multiplayer/ClientLevel;Z)V", at = @At("HEAD"))
     private void unOnload(final ClientLevel level, final boolean stopSound, final CallbackInfo ci)
     {
-        if (level == null)
-        {
-            ClientChunkHandler.onUnloadWorld();
-        }
+        ClientChunkHandler.onUnloadWorld();
     }
 }
