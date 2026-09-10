@@ -123,8 +123,6 @@ dependencies {
     implementation "curse.maven:cupboard-326652:8275394"
     compileOnly "net.caffeinemc.mods:sodium-neoforge-0.8.9+mc26.1.1-mod"
     compileOnly "curse.maven:sodium-394468:7867828"
-    implementation 'org.jctools:jctools-core:4.0.1'
-    jarJar(group:'org.jctools',name:'jctools-core', version:'[4.0.1,)')
 }
 
 def loaderVersionRange = providers.gradleProperty("loader_version_range")
