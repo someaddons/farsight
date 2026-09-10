@@ -13,7 +13,6 @@ public class FarsightClient implements ClientModInitializer
     @Override
     public void onInitializeClient()
     {
-        FarsightMod.LOGGER.info(FarsightMod.MODID + " mod initialized");
         if (FabricLoader.getInstance().isModLoaded("sodium"))
         {
             SodiumCompat.init();
