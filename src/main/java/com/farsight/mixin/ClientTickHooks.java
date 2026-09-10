@@ -31,9 +31,6 @@ public class ClientTickHooks
     @Inject(method = "updateLevelInEngines", at = @At("HEAD"))
     private void unOnload(ClientLevel level, CallbackInfo ci)
     {
-        if (level == null)
-        {
-            ClientChunkHandler.onUnloadWorld();
-        }
+        ClientChunkHandler.onUnloadWorld();
     }
 }
