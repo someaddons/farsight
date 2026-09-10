@@ -333,7 +333,7 @@ public class PreviewRegionFile implements Closeable
     public synchronized void saveChunk(final Level level, int chunkX, int chunkZ, ClientboundLevelChunkWithLightPacket packet) throws IOException
     {
         RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), level.registryAccess(), ConnectionType.NEOFORGE);
-        packet.write(buf);
+        ClientboundLevelChunkWithLightPacket.STREAM_CODEC.encode(buf, packet);
         byte[] packetBytes = new byte[buf.readableBytes()];
         buf.getBytes(buf.readerIndex(), packetBytes);
 
@@ -396,7 +396,7 @@ public class PreviewRegionFile implements Closeable
             registryFriendlyByteBuf.writerIndex(uncompressed.length);
             registryFriendlyByteBuf.setBytes(0, uncompressed);
 
-            ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(registryFriendlyByteBuf);
+            ClientboundLevelChunkWithLightPacket packet = ClientboundLevelChunkWithLightPacket.STREAM_CODEC.decode(registryFriendlyByteBuf);
             return packet;
         }
         catch (Throwable e)
