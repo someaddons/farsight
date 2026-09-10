@@ -105,8 +105,6 @@ dependencies {
     implementation fg.deobf("curse.maven:cupboard-326652:4669193")
     implementation fg.deobf("curse.maven:embeddium-908741:5521846")
     implementation fg.deobf("curse.maven:oculus-581495:5299671")
-    minecraftLibrary 'org.jctools:jctools-core:4.0.1'
-    jarJar(group:'org.jctools',name:'jctools-core', version:'[4.0.1,)')
 }
 
 jar {
