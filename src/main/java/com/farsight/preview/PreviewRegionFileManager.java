@@ -25,7 +25,7 @@ public class PreviewRegionFileManager
     /**
      * Small cache so we do not re-read the same file from disk all the time
      */
-    private static PreviewRegionFile[] cache      = new PreviewRegionFile[16];
+    private static PreviewRegionFile[] cache      = new PreviewRegionFile[4];
     private static int                 cacheIndex = 0;
 
     /**
@@ -41,7 +41,7 @@ public class PreviewRegionFileManager
         for (int i = 0; i < cache.length; i++)
         {
             final PreviewRegionFile cacheRegionFile = cache[i];
-            if (cacheRegionFile != null && cacheRegionFile.contains(chunkX, chunkZ) && cacheRegionFile.channel.isOpen())
+            if (cacheRegionFile != null && cacheRegionFile.contains(chunkX, chunkZ) && cacheRegionFile.channel.isOpen() && cacheRegionFile.dimension.equals(dimension))
             {
                 return cacheRegionFile;
             }
@@ -56,7 +56,7 @@ public class PreviewRegionFileManager
         final File file = regionPath.toFile();
         try
         {
-            final PreviewRegionFile newRegion = new PreviewRegionFile(file.toPath(), chunkX, chunkZ);
+            final PreviewRegionFile newRegion = new PreviewRegionFile(file.toPath(), dimension, chunkX, chunkZ);
             cacheIndex = (cacheIndex + 1) % cache.length;
             final PreviewRegionFile oldRegion = cache[cacheIndex];
             cache[cacheIndex] = newRegion;
@@ -69,7 +69,7 @@ public class PreviewRegionFileManager
         }
         catch (Throwable e)
         {
-            FarsightMod.logDebug("Error getting region file: "+file.toPath(),e);
+            FarsightMod.logDebug("Error getting region file: " + file.toPath(), e);
             return null;
         }
     }
@@ -81,8 +81,9 @@ public class PreviewRegionFileManager
      */
     public static void saveChunkPacket(ClientboundLevelChunkWithLightPacket packet)
     {
+        final Level level = Minecraft.getInstance().level;
         ioExecutor.submit(() -> {
-            PreviewRegionFile regionFile = getFileForCoords(Minecraft.getInstance().level.dimension(), packet.getX(), packet.getZ());
+            PreviewRegionFile regionFile = getFileForCoords(level.dimension(), packet.getX(), packet.getZ());
             if (regionFile == null)
             {
                 return;
@@ -90,7 +91,7 @@ public class PreviewRegionFileManager
 
             try
             {
-                regionFile.saveChunk(Minecraft.getInstance().level, packet.getX(), packet.getZ(), packet);
+                regionFile.saveChunk(level, packet.getX(), packet.getZ(), packet);
             }
             catch (Throwable e)
             {
@@ -104,11 +105,12 @@ public class PreviewRegionFileManager
      *
      * @param chunkX
      * @param chunkZ
+     * @param clientLevel
      * @return
      */
-    public static ClientboundLevelChunkWithLightPacket loadChunk(final int chunkX, final int chunkZ)
+    public static ClientboundLevelChunkWithLightPacket loadChunk(final int chunkX, final int chunkZ, final Level clientLevel)
     {
-        PreviewRegionFile regionFile = getFileForCoords(Minecraft.getInstance().level.dimension(), chunkX, chunkZ);
+        PreviewRegionFile regionFile = getFileForCoords(clientLevel.dimension(), chunkX, chunkZ);
         if (regionFile == null)
         {
             return null;
@@ -116,7 +118,7 @@ public class PreviewRegionFileManager
 
         try
         {
-            return regionFile.loadChunk(Minecraft.getInstance().level, chunkX, chunkZ);
+            return regionFile.loadChunk(clientLevel, chunkX, chunkZ);
         }
         catch (IOException e)
         {
@@ -179,15 +181,42 @@ public class PreviewRegionFileManager
             final ChunkPos loadPos = toLoad.get(i);
             pendingPositions.add(loadPos);
             ioExecutor.submit(() -> {
-                final ClientboundLevelChunkWithLightPacket packet = loadChunk(loadPos.x, loadPos.z);
-                Minecraft.getInstance().submit(() -> {
-                    if (packet != null && clientLevel.getChunk(loadPos.x, loadPos.z, ChunkStatus.FULL, false) == null)
-                    {
-                        Minecraft.getInstance().getConnection().handleLevelChunkWithLight(packet);
+                final ClientboundLevelChunkWithLightPacket packet = loadChunk(loadPos.x, loadPos.z, clientLevel);
+                if (packet != null)
+                {
+                    Minecraft.getInstance().submit(() -> {
                         pendingPositions.remove(loadPos);
-                    }
-                });
+                        if (clientLevel == Minecraft.getInstance().level && clientLevel.getChunk(loadPos.x, loadPos.z, ChunkStatus.FULL, false) == null)
+                        {
+                            try
+                            {
+                                Minecraft.getInstance().getConnection().handleLevelChunkWithLight(packet);
+                            }
+                            catch (Throwable e)
+                            {
+                                FarsightMod.logDebug("Failed to handle chunk packet, dim:" + clientLevel.dimension() + " pos:" + loadPos, e);
+                                ioExecutor.submit(() ->
+                                {
+                                    PreviewRegionFile regionFile = getFileForCoords(clientLevel.dimension(), loadPos.x, loadPos.z);
+                                    if (regionFile != null)
+                                    {
+                                        regionFile.clearFile();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
             });
         }
+    }
+
+    public static void onUnloadWorld()
+    {
+        pendingPositions.clear();
+        ioExecutor.submit(() ->{
+            cache      = new PreviewRegionFile[4];
+            cacheIndex = 0;
+        });
     }
 }
