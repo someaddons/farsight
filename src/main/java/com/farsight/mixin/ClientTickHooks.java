@@ -31,5 +31,6 @@ public class ClientTickHooks
     private void unOnload(final ClientLevel level, final boolean stopSound, final CallbackInfo ci)
     {
         ClientChunkHandler.onUnloadWorld();
+        PreviewRegionFileManager.onUnloadWorld();
     }
 }
