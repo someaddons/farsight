@@ -42,7 +42,8 @@ public class PreviewRegionFile implements Closeable
      * Region file coords
      */
     private final int regionX;
-    private final int regionZ;
+    private final int                regionZ;
+    public final  ResourceKey<Level> dimension;
 
     /**
      * Data holder for each contained respective chunk
@@ -73,8 +74,9 @@ public class PreviewRegionFile implements Closeable
      */
     private final Int2ObjectOpenHashMap<ChunkEntry> indexToChunkEntryMap = new Int2ObjectOpenHashMap<>();
 
-    public PreviewRegionFile(Path path, final int chunkX, final int chunkZ) throws IOException
+    public PreviewRegionFile(Path path, final ResourceKey<Level> dimension, final int chunkX, final int chunkZ) throws IOException
     {
+        this.dimension = dimension;
         this.regionX = chunkX >> 5;
         this.regionZ = chunkZ >> 5;
         this.path = path;
@@ -224,7 +226,7 @@ public class PreviewRegionFile implements Closeable
     /**
      * Reset the file completly
      */
-    private void clearFile()
+    public void clearFile()
     {
         try
         {
@@ -379,7 +381,7 @@ public class PreviewRegionFile implements Closeable
             return null;
         }
 
-        FarsightMod.logDebug("Loading chunk: x:" + chunkX + " z:" + chunkZ + " entry:" + chunkEntry);
+        FarsightMod.logDebug("Loading chunk: x:" + chunkX + " z:" + chunkZ + " entry:" + chunkEntry + " dim: " + level.dimension());
         try
         {
             ByteBuffer buffer = ByteBuffer.allocate(chunkEntry.length);

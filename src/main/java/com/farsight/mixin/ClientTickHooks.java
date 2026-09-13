@@ -20,7 +20,7 @@ public class ClientTickHooks
     @Inject(method = "tick", at = @At("RETURN"))
     private void onTick(final CallbackInfo ci)
     {
-        if (Minecraft.getInstance().player != null && Minecraft.getInstance().level != null && tickCounter++ > 100 && FarsightMod.config.getCommonConfig().enableChunkPreview
+        if (Minecraft.getInstance().player != null && Minecraft.getInstance().level != null && tickCounter > 100 && FarsightMod.config.getCommonConfig().enableChunkPreview
             && !Minecraft.getInstance().isPaused())
         {
             tickCounter = 200;
@@ -32,5 +32,6 @@ public class ClientTickHooks
     private void unOnload(ClientLevel level, CallbackInfo ci)
     {
         ClientChunkHandler.onUnloadWorld();
+        PreviewRegionFileManager.onUnloadWorld();
     }
 }
