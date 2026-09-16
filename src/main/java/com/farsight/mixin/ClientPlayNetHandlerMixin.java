@@ -10,7 +10,7 @@ import net.minecraft.client.multiplayer.CommonListenerCookie;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
-import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket;
 import org.spongepowered.asm.mixin.Mixin;
@@ -52,9 +52,9 @@ public abstract class ClientPlayNetHandlerMixin extends ClientCommonPacketListen
         }
     }
 
-    @Inject(method = "updateLevelChunk", at =@At("HEAD"))
-    private void onChunkUpdate(final int x, final int z, final ClientboundLevelChunkPacketData chunkData, final CallbackInfo ci)
+    @Inject(method = "handleLevelChunkWithLight", at = @At("HEAD"))
+    private void onChunkUpdate(final ClientboundLevelChunkWithLightPacket packet, final CallbackInfo ci)
     {
-        ClientChunkHandler.onChunkUpdate(x,z);
+        ClientChunkHandler.onChunkUpdate(packet.x(), packet.z());
     }
 }

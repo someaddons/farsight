@@ -10,7 +10,7 @@ buildscript {
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.141'
+    id 'net.neoforged.moddev' version '2.0.147'
     id 'idea'
 }
 
@@ -120,10 +120,9 @@ configurations {
 }
 
 dependencies {
-    implementation "curse.maven:cupboard-326652:8275394"
-    compileOnly "net.caffeinemc.mods:sodium-neoforge-0.8.9+mc26.1.1-mod"
-    compileOnly "curse.maven:sodium-394468:7867828"
+    implementation "curse.maven:cupboard-326652:8893470"
 }
+
 
 def loaderVersionRange = providers.gradleProperty("loader_version_range")
 def modVersion = providers.gradleProperty("mod_version")
@@ -135,7 +134,7 @@ processResources {
     filesMatching("META-INF/neoforge.mods.toml") {
         expand(
                 loader_version_range: loaderVersionRange.get(),
-                mod_version: modVersion.get()
+                mod_version         : modVersion.get()
         )
     }
 }
@@ -166,9 +165,8 @@ idea {
     }
 }
 
-
-import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.core.JsonProcessingException
 
 tasks.register("validateJson") {
     def jsonFiles = layout.projectDirectory.asFileTree.matching {

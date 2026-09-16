@@ -83,7 +83,7 @@ public class PreviewRegionFileManager
     {
         final Level level = Minecraft.getInstance().level;
         ioExecutor.submit(() -> {
-            PreviewRegionFile regionFile = getFileForCoords(level.dimension(), packet.getX(), packet.getZ());
+            PreviewRegionFile regionFile = getFileForCoords(level.dimension(), packet.x(), packet.z());
             if (regionFile == null)
             {
                 return;
@@ -91,11 +91,11 @@ public class PreviewRegionFileManager
 
             try
             {
-                regionFile.saveChunk(level, packet.getX(), packet.getZ(), packet);
+                regionFile.saveChunk(level, packet.x(), packet.z(), packet);
             }
             catch (Throwable e)
             {
-                FarsightMod.LOGGER.warn("Failed to save chunk packet: x:" + packet.getX() + " z:" + packet.getZ(), e);
+                FarsightMod.LOGGER.warn("Failed to save chunk packet: x:" + packet.x() + " z:" + packet.z(), e);
             }
         });
     }
