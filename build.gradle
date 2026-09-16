@@ -47,7 +47,7 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    implementation("curse.maven:cupboard-326652:7906258")
+    implementation("curse.maven:cupboard-326652:8890593")
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // Fabric API. This is technically optional, but you probably want it anyway.
