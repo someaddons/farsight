@@ -3,9 +3,6 @@ package com.farsight;
 import com.cupboard.config.CupboardConfig;
 import com.farsight.compat.SodiumCompat;
 import com.farsight.config.CommonConfiguration;
-import com.farsight.event.ClientEventHandler;
-import com.farsight.event.EventHandler;
-import com.farsight.event.ModEventHandler;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -31,8 +28,6 @@ public class FarsightMod
     public FarsightMod()
     {
         ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> "", (c, b) -> true));
-        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(ModEventHandler.class);
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(EventHandler.class);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
     }
@@ -41,7 +36,6 @@ public class FarsightMod
     public void clientSetup(FMLClientSetupEvent event)
     {
         // Side safe client event handler
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(ClientEventHandler.class);
         if ((FMLLoader.getLoadingModList().getModFileById("rubidium") != null) || (
           FMLLoader.getLoadingModList().getModFileById("sodium") != null))
         {
