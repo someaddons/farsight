@@ -19,10 +19,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "farsight.FarsightMod"
+      "com.farsight.FarsightMod"
     ],
     "client": [
-      "farsight.FarsightClient"
+      "com.farsight.FarsightClient"
     ]
   },
   "mixins": [

@@ -1,14 +1,15 @@
 {
   "required": false,
   "minVersion": "0.8",
-  "package": "farsight.mixin",
+  "package": "com.farsight.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
   ],
   "client": [
+    "ClientBoundLevelChunkWIthLightPacketMixin",
     "ClientOptionsMixin",
     "ClientPlayNetHandlerMixin",
-    "ClientWorldMixin",
+    "ClientTickHooks",
     "SodiumGameOptionPagesMixin"
   ],
   "injectors": {

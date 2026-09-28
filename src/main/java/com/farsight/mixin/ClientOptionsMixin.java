@@ -1,6 +1,6 @@
-package farsight.mixin;
+package com.farsight.mixin;
 
-import farsight.FarsightMod;
+import com.farsight.FarsightMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
