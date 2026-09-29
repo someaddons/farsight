@@ -1,13 +1,12 @@
 package com.farsight;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ClientChunkHandler
 {
@@ -17,14 +16,14 @@ public class ClientChunkHandler
     public static int EXTRA_CHUNK_DATA_LEEWAY = 10;
 
     /**
-     * Pending chunks to be unloaded
+     * Pending chunks to be unloaded.
      */
-    private static final Long2ObjectOpenHashMap<ClientboundForgetLevelChunkPacket> unloadedOnServer = new Long2ObjectOpenHashMap();
+    private static final ConcurrentHashMap<Long, ClientboundForgetLevelChunkPacket> unloadedOnServer = new ConcurrentHashMap<>();
 
     /**
      * Toggle to allow the vanilla call go through when actually unloading
      */
-    static boolean unloading = false;
+    static volatile boolean unloading = false; //marked as volatile: warns other
 
     /**
      * Checks if the chunk should be unloaded directly, returns true is unloading is handled later by this
@@ -47,27 +46,45 @@ public class ClientChunkHandler
             return false;
         }
 
-        if (player.chunkPosition().getChessboardDistance(new ChunkPos(packet.pos().x(), packet.pos().z()))
-            > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
+        //Reduces memory accesses
+        final int maxDistance = Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY;
+        final int playerX = player.chunkPosition().x();
+        final int playerZ = player.chunkPosition().z();
+
+        //using declared function
+        if (getChebyshevDistance(playerX, playerZ, packet.pos().x(), packet.pos().z()) > maxDistance)
         {
             return false;
         }
 
         unloadedOnServer.put(ChunkPos.pack(packet.pos().x(), packet.pos().z()), packet);
-        for (ObjectIterator<Long2ObjectMap.Entry<ClientboundForgetLevelChunkPacket>> iterator = unloadedOnServer.long2ObjectEntrySet().fastIterator(); iterator.hasNext(); )
+
+        final LongArrayList chunksToUnload = new LongArrayList();
+
+        //Fetch all chunks first
+        for (final long chunkLong : unloadedOnServer.keySet())
         {
-            final Long2ObjectMap.Entry<ClientboundForgetLevelChunkPacket> entry = iterator.next();
-            final long chunkLong = entry.getLongKey();
-            if (getChebyshevDistance(player.chunkPosition().x(), player.chunkPosition().z(), ChunkPos.getX(chunkLong), ChunkPos.getZ(chunkLong))
-                > Minecraft.getInstance().options.renderDistance().get() + EXTRA_CHUNK_DATA_LEEWAY)
+            if (getChebyshevDistance(playerX, playerZ, ChunkPos.getX(chunkLong), ChunkPos.getZ(chunkLong)) > maxDistance)
+            {
+                chunksToUnload.add(chunkLong);
+            }
+        }
+
+        //Now remove them
+        for (int i = 0; i < chunksToUnload.size(); i++)
+        {
+            final ClientboundForgetLevelChunkPacket pending = unloadedOnServer.remove(chunksToUnload.getLong(i));
+            if (pending != null && packetListener != null)
             {
                 unloading = true;
-                if (packetListener != null)
+                try
                 {
-                    packetListener.handleForgetLevelChunk(entry.getValue());
+                    packetListener.handleForgetLevelChunk(pending);
                 }
-                unloading = false;
-                iterator.remove();
+                finally
+                {
+                    unloading = false;
+                }
             }
         }
 
