@@ -47,7 +47,7 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    implementation("curse.maven:cupboard-326652:8890593")
+    implementation("curse.maven:cupboard-326652:8623566")
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // Fabric API. This is technically optional, but you probably want it anyway.
@@ -99,6 +99,82 @@ publishing {
         // Notice: This block does NOT have the same function as the block in the top level.
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
+    }
+}
+
+["build", "runClient", "runServer"].each { taskName ->
+    tasks.matching { it.name == taskName }.configureEach {
+        dependsOn("cleanupGradleDaemons")
+    }
+}
+
+tasks.register("cleanupGradleDaemons") {
+    group = "maintenance"
+    description = "Kills old Java processes started directly by IntelliJ"
+
+    doLast {
+        def current = ProcessHandle.current()
+        long currentPid = current.pid()
+
+        def parentOptional = current.parent()
+
+        if (parentOptional.isEmpty()) {
+            println "Current process has no parent"
+            return
+        }
+
+        def idea = parentOptional.get()
+
+        println "IntelliJ PID: ${idea.pid()}"
+        println "Current JVM PID: ${currentPid}"
+
+        def javaProcesses = new ArrayList(
+                idea.children()
+                        .filter { process ->
+                            if (!process.isAlive() || process.pid() == currentPid) {
+                                return false
+                            }
+
+                            String command = process.info()
+                                    .command()
+                                    .orElse("")
+                                    .toLowerCase()
+
+                            return command.endsWith("java.exe") ||
+                                    command.endsWith("java")
+                        }
+                        .map { process ->
+                            [
+                                    process: process,
+                                    started: process.info()
+                                            .startInstant()
+                                            .orElse(java.time.Instant.EPOCH)
+                            ]
+                        }
+                        .toList()
+        )
+
+        // Newest first
+        javaProcesses.sort { a, b ->
+            b.started <=> a.started
+        }
+
+        // Current JVM is already protected separately.
+        // Keep 2 additional newest IntelliJ Java processes.
+        int keepNewest = 2
+
+        println "Found ${javaProcesses.size()} other IntelliJ Java processes"
+
+        javaProcesses.eachWithIndex { entry, index ->
+            def action = index < keepNewest ? "KEEP" : "KILL"
+
+            println "${action}: PID ${entry.process.pid()} started ${entry.started}"
+        }
+
+        javaProcesses.drop(keepNewest).each { entry ->
+            println "Killing PID ${entry.process.pid()}"
+            entry.process.destroyForcibly()
+        }
     }
 }
 
