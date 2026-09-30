@@ -52,7 +52,7 @@ public abstract class ClientPlayNetHandlerMixin extends ClientCommonPacketListen
         }
     }
 
-    @Inject(method = "handleLevelChunkWithLight", at = @At("HEAD"))
+    @Inject(method = "handleLevelChunkWithLight", at = @At("TAIL"))
     private void onChunkUpdate(final ClientboundLevelChunkWithLightPacket packet, final CallbackInfo ci)
     {
         ClientChunkHandler.onChunkUpdate(packet.x(), packet.z());
