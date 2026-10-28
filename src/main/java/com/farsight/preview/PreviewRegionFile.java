@@ -552,9 +552,16 @@ public class PreviewRegionFile implements Closeable
     }
 
     @Override
-    public void close() throws IOException
+    public void close()
     {
-        channel.force(false);
-        channel.close();
+        try
+        {
+            channel.force(false);
+            channel.close();
+        }
+        catch (Exception e)
+        {
+            FarsightMod.logDebug("Error while closing region file:", e);
+        }
     }
 }
