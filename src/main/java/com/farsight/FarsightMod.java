@@ -3,6 +3,7 @@ package com.farsight;
 import com.cupboard.config.CupboardConfig;
 import com.farsight.compat.SodiumCompat;
 import com.farsight.config.CommonConfiguration;
+import com.farsight.preview.PreviewRegionFileManager;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -29,6 +30,12 @@ public class FarsightMod
     {
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::clientSetup);
+        NeoForge.EVENT_BUS.addListener(this::chunkUnload);
+    }
+
+    private void chunkUnload(ChunkEvent.Unload chunkEvent)
+    {
+        PreviewRegionFileManager.onChunkUnload(chunkEvent.getChunk().getPos());
     }
 
     @SubscribeEvent
