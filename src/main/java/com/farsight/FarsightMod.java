@@ -3,6 +3,8 @@ package com.farsight;
 import com.cupboard.config.CupboardConfig;
 import com.farsight.compat.SodiumCompat;
 import com.farsight.config.CommonConfiguration;
+import com.farsight.preview.PreviewRegionFileManager;
+import net.minecraftforge.event.level.ChunkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -30,6 +32,12 @@ public class FarsightMod
         ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> "", (c, b) -> true));
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
+        Mod.EventBusSubscriber.Bus.FORGE.bus().get().addListener(this::chunkUnload);
+    }
+
+    private void chunkUnload(ChunkEvent.Unload chunkEvent)
+    {
+        PreviewRegionFileManager.onChunkUnload(chunkEvent.getChunk().getPos());
     }
 
     @SubscribeEvent

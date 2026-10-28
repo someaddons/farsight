@@ -105,6 +105,7 @@ dependencies {
     implementation fg.deobf("curse.maven:cupboard-326652:4669193")
     implementation fg.deobf("curse.maven:embeddium-908741:5521846")
     implementation fg.deobf("curse.maven:oculus-581495:5299671")
+    implementation fg.deobf("curse.maven:spark-361579:4738952")
 }
 
 jar {
