@@ -35,7 +35,10 @@ public class FarsightMod
 
     private void chunkUnload(ChunkEvent.Unload chunkEvent)
     {
-        PreviewRegionFileManager.onChunkUnload(chunkEvent.getChunk().getPos());
+        if (chunkEvent.getLevel().isClientSide())
+        {
+            PreviewRegionFileManager.onChunkUnload(chunkEvent.getChunk().getPos());
+        }
     }
 
     @SubscribeEvent
