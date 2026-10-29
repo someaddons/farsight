@@ -164,7 +164,7 @@ public class PreviewRegionFileManager
         {
             pendingPositions.add(loadPos);
             ioExecutor.submit(() -> {
-                final ClientboundLevelChunkWithLightPacket packet = loadChunk(loadPos.x, loadPos.z, clientLevel);
+                final ClientboundLevelChunkWithLightPacket packet = loadChunk(loadPos.x(), loadPos.z(), clientLevel);
                 Minecraft.getInstance().submit(() -> {
                     if (clientLevel != Minecraft.getInstance().level)
                     {
@@ -178,7 +178,7 @@ public class PreviewRegionFileManager
                         return;
                     }
 
-                    if (clientLevel.getChunk(loadPos.x, loadPos.z, ChunkStatus.FULL, false) == null)
+                    if (clientLevel.getChunk(loadPos.x(), loadPos.z(), ChunkStatus.FULL, false) == null)
                     {
                         try
                         {
@@ -189,7 +189,7 @@ public class PreviewRegionFileManager
                             FarsightMod.logDebug("Failed to handle chunk packet, dim:" + clientLevel.dimension() + " pos:" + loadPos, e);
                             ioExecutor.submit(() ->
                             {
-                                PreviewRegionFile regionFile = getFileForCoords(clientLevel.dimension(), loadPos.x, loadPos.z);
+                                PreviewRegionFile regionFile = getFileForCoords(clientLevel.dimension(), loadPos.x(), loadPos.z());
                                 if (regionFile != null)
                                 {
                                     regionFile.clearFile();
@@ -225,10 +225,10 @@ public class PreviewRegionFileManager
 
             double xDir = -Mth.sin(player.getYRot() * Mth.DEG_TO_RAD);
             double zDir = Mth.cos(player.getYRot() * Mth.DEG_TO_RAD);
-            ChunkPos newComparePos = new ChunkPos(origin.x + (int) (xDir * LOOK_AHEAD), origin.z + (int) (zDir * LOOK_AHEAD));
-            if (clientLevel.getChunk(newComparePos.x, newComparePos.z, ChunkStatus.FULL, false) == null)
+            ChunkPos newComparePos = new ChunkPos(origin.x() + (int) (xDir * LOOK_AHEAD), origin.z() + (int) (zDir * LOOK_AHEAD));
+            if (clientLevel.getChunk(newComparePos.x(), newComparePos.z(), ChunkStatus.FULL, false) == null)
             {
-                newComparePos = new ChunkPos(origin.x + (int) (xDir * 2), origin.z + (int) (zDir * 2));
+                newComparePos = new ChunkPos(origin.x() + (int) (xDir * 2), origin.z() + (int) (zDir * 2));
             }
 
             if (!newComparePos.equals(comparePos))
@@ -243,19 +243,19 @@ public class PreviewRegionFileManager
         final List<ChunkPos> toLoad = new ArrayList<>(limit);
 
         // Limit to player render area
-        final int minX = origin.x - renderDistance;
-        final int maxX = origin.x + renderDistance;
-        final int minZ = origin.z - renderDistance;
-        final int maxZ = origin.z + renderDistance;
+        final int minX = origin.x() - renderDistance;
+        final int maxX = origin.x() + renderDistance;
+        final int minZ = origin.z() - renderDistance;
+        final int maxZ = origin.z() + renderDistance;
 
-        final int maxRadius = renderDistance + Math.max(Math.abs(comparePos.x - origin.x), Math.abs(comparePos.z - origin.z));
+        final int maxRadius = renderDistance + Math.max(Math.abs(comparePos.x() - origin.x()), Math.abs(comparePos.z() - origin.z()));
 
         final int diameter = renderDistance * 2 + 1;
         final int checksPerTick = (diameter * diameter + 39) / 40;
         for (int checked = 0; checked < checksPerTick && toLoad.size() < limit; )
         {
-            final int chunkX = comparePos.x + chunkOffsetX;
-            final int chunkZ = comparePos.z + chunkOffsetZ;
+            final int chunkX = comparePos.x() + chunkOffsetX;
+            final int chunkZ = comparePos.z() + chunkOffsetZ;
 
             if (advanceScanUntil(maxRadius))
             {
@@ -266,7 +266,7 @@ public class PreviewRegionFileManager
             {
                 checked++;
                 final ChunkPos pos = new ChunkPos(chunkX, chunkZ);
-                if (!pendingPositions.contains(pos) && !failedOrEmptyPositions.contains(pos) && clientLevel.getChunk(pos.x, pos.z, ChunkStatus.FULL, false) == null)
+                if (!pendingPositions.contains(pos) && !failedOrEmptyPositions.contains(pos) && clientLevel.getChunk(pos.x(), pos.z(), ChunkStatus.FULL, false) == null)
                 {
                     toLoad.add(pos);
                     if (toLoad.size() == limit)
