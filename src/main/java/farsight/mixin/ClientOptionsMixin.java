@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Options.class)
 public abstract class ClientOptionsMixin
 {
-    @Inject(method = "load", at = @At("HEAD"))
+    @Inject(method = "load()V", at = @At("HEAD"))
     private void onInit(final CallbackInfo ci)
     {
         this.renderDistance = new OptionInstance(

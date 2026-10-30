@@ -16,4 +16,12 @@ public class FarsightMod implements ModInitializer
     public void onInitialize()
     {
     }
+
+    public static void logDebug(String message, Object... args)
+    {
+        if (config.getCommonConfig().debugLogging)
+        {
+            LOGGER.warn(message, args);
+        }
+    }
 }
